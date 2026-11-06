@@ -1,0 +1,975 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>InfraTech</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<!-- Bootstrap 6 ainda é pré-lançamento: versão fixada de propósito. Ao atualizar, troque a URL e os dois hashes. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css" integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe" crossorigin="anonymous">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-1a/pXj49ZQ1aHEmrJ+gMw1otqoVsYwlEnlD8mIfY2TV03r20Y0CN7uqx1tQogjPL" crossorigin="anonymous">
+<script>
+/* Aplica o tema salvo antes da primeira pintura, para não piscar */
+try {
+  var temaSalvo = localStorage.getItem("infratech-tema");
+  if (temaSalvo === "light" || temaSalvo === "dark") {
+    document.documentElement.setAttribute("data-theme", temaSalvo);
+    document.documentElement.setAttribute("data-bs-theme", temaSalvo);
+  }
+} catch (e) {}
+document.documentElement.lang = "pt-BR";
+</script>
+<style>
+/* Layout: cabeçalho fixo; hero em duas colunas com painel de rack (patch panel + switch);
+   serviços em linhas (etiqueta | descrição | itens); processo em 4 etapas; sobre; equipe; faixa escura de contato.
+   Assinatura visual: o código de cores dos pares do cabo de rede (laranja, verde, azul, marrom). */
+:root {
+  --font-display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  --bg: #F2F4F8;
+  --surface: #FFFFFF;
+  --surface-2: #E5EAF2;
+  --fg: #141A26;
+  --muted: #4A5568;
+  --line: #CBD3DF;
+  --accent: #0A55D6;
+  --accent-fg: #FFFFFF;
+  --link: #0A55D6;
+
+  --hw: #18232F;
+  --hw-edge: #2C3C4B;
+  --hw-port: #0A1016;
+  --hw-label: #93A6B7;
+
+  --p-or: #E8812E;
+  --p-gr: #3FA34D;
+  --p-bl: #2F7FD1;
+  --p-br: #9A6844;
+
+  --band: #141A26;
+  --band-fg: #E8EDF5;
+  --band-muted: #A0ABBD;
+  --band-line: #2A3448;
+}
+/* Logo: versão clara e versão para fundo escuro */
+.only-dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .only-light { display: none; }
+  :root:not([data-theme="light"]) .only-dark { display: block; }
+}
+:root[data-theme="dark"] .only-light { display: none; }
+:root[data-theme="dark"] .only-dark { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A0F18; --surface: #111826; --surface-2: #182234; --fg: #E8EDF5; --muted: #A0ABBD; --line: #243047;
+    --accent: #4C9BF5; --accent-fg: #07101E; --link: #6FB0F8;
+    --hw: #16212C; --hw-edge: #34475A; --hw-port: #070C11; --hw-label: #93A6B7;
+    --band: #101B26; --band-fg: #E7EEF4; --band-muted: #9FB0BF; --band-line: #243545;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A0F18; --surface: #111826; --surface-2: #182234; --fg: #E8EDF5; --muted: #A0ABBD; --line: #243047;
+  --accent: #4C9BF5; --accent-fg: #07101E; --link: #6FB0F8;
+  --hw: #16212C; --hw-edge: #34475A; --hw-port: #070C11; --hw-label: #93A6B7;
+  --band: #101B26; --band-fg: #E7EEF4; --band-muted: #9FB0BF; --band-line: #243545;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: auto; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg);
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.04; margin: 0; text-wrap: balance; }
+h2 { font-size: clamp(1.9rem, 4.2vw, 2.9rem); }
+h3 { font-size: 1.5rem; line-height: 1.1; }
+p { margin: 0; }
+a { color: var(--link); }
+:focus-visible { outline: 3px solid var(--link); outline-offset: 3px; border-radius: 2px; }
+
+.wrap {
+  width: 100%; max-width: 1120px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.eyebrow {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+}
+
+/* Cabeçalho */
+.hdr { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
+.hdr .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--fg); text-decoration: none; }
+.brand .logo { height: 36px; width: auto; flex: none; }
+.nav { display: flex; align-items: center; gap: 22px; }
+.nav a.l { color: var(--fg); text-decoration: none; font-size: 14px; font-weight: 500; }
+.nav a.l:hover { color: var(--link); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 20px; border-radius: 4px; border: 1.5px solid transparent;
+  font: 600 15px/1 var(--font-body); text-decoration: none; cursor: pointer;
+}
+.btn.primary { background: var(--accent); color: var(--accent-fg); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.ghost { border-color: var(--fg); color: var(--fg); }
+.btn.ghost:hover { background: var(--surface-2); }
+.hdr .btn { padding: 10px 16px; font-size: 14px; white-space: nowrap; }
+@media (max-width: 420px) { .brand .logo { height: 30px; } .hdr .btn { padding: 9px 12px; font-size: 13px; } }
+@media (max-width: 780px) { .nav a.l { display: none; } }
+
+/* Hero */
+.hero { padding-block: clamp(40px, 7vw, 88px); }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
+.hero h1 { font-size: clamp(2.7rem, 7.2vw, 5rem); margin-top: 16px; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .lead { margin-top: 22px; font-size: 1.125rem; color: var(--muted); max-width: 52ch; }
+.hero .cta { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; }
+.rack { min-width: 0; }
+.rack svg { display: block; width: 100%; height: auto; max-width: 600px; margin-left: auto; }
+.rack .cap { margin-top: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-align: right; letter-spacing: .04em; }
+@media (max-width: 860px) {
+  .hero .wrap { grid-template-columns: minmax(0, 1fr); }
+  .rack svg { margin-left: 0; }
+  .rack .cap { text-align: left; }
+}
+.hw-body { fill: var(--hw); stroke: var(--hw-edge); stroke-width: 1.5; }
+.hw-ear { fill: var(--hw-edge); }
+.hw-hole { fill: var(--hw-port); }
+.hw-port { fill: var(--hw-port); stroke: var(--hw-edge); stroke-width: 1.5; }
+.hw-pin { fill: var(--hw-edge); }
+.hw-lbl { fill: var(--hw-label); font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; }
+.hw-num { fill: var(--hw-label); font-family: var(--font-mono); font-size: 10px; text-anchor: middle; }
+.led-on { fill: var(--p-gr); }
+.led-off { fill: var(--hw-edge); }
+.led-act { fill: var(--p-or); }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
+@media (prefers-reduced-motion: no-preference) { .blink { animation: blink 1.6s ease-in-out infinite; } }
+
+/* Seções */
+.sec { padding-block: clamp(48px, 7vw, 88px); scroll-margin-top: 72px; }
+.sec-head { display: grid; gap: 12px; margin-bottom: clamp(24px, 4vw, 40px); }
+.sec-head p.sub { color: var(--muted); max-width: 60ch; }
+.alt { background: var(--surface); border-block: 1px solid var(--line); }
+
+/* Serviços */
+.svc { display: grid; grid-template-columns: 150px minmax(0, 1fr) minmax(0, 1.1fr); gap: 20px 32px; padding-block: 28px; border-top: 1px solid var(--line); }
+.svc:last-child { border-bottom: 1px solid var(--line); }
+.svc-tag { align-self: start; border-left: 6px solid var(--tag); padding: 2px 0 2px 12px; font-family: var(--font-mono); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
+.svc-main { display: grid; gap: 10px; align-content: start; }
+.svc-main p { color: var(--muted); max-width: 46ch; }
+.svc-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; align-content: start; }
+.svc-items li { position: relative; padding-left: 20px; }
+.svc-items li::before { content: ""; position: absolute; left: 0; top: .6em; width: 9px; height: 3px; background: var(--tag); border-radius: 2px; }
+@media (max-width: 860px) { .svc { grid-template-columns: minmax(0, 1fr); gap: 14px; } }
+
+/* Processo */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 28px 24px; }
+.steps li { border-top: 3px solid var(--fg); padding-top: 16px; display: grid; gap: 8px; align-content: start; }
+.steps .n { font-family: var(--font-mono); font-size: 13px; color: var(--accent); letter-spacing: .1em; }
+.steps p { color: var(--muted); }
+
+/* Sobre */
+.about { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.about .txt { display: grid; gap: 18px; }
+.about .txt p { color: var(--muted); max-width: 52ch; }
+.commit { list-style: none; margin: 0; padding: 0; }
+.commit li { padding-block: 18px; border-top: 1px solid var(--line); display: grid; gap: 4px; }
+.commit li:last-child { border-bottom: 1px solid var(--line); }
+.commit strong { font-weight: 600; }
+.commit span { color: var(--muted); }
+@media (max-width: 860px) { .about { grid-template-columns: minmax(0, 1fr); } }
+
+/* Equipe */
+.team { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0 32px; }
+.member { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px; align-items: center; padding-block: 18px; border-top: 1px solid var(--line); }
+.member .av {
+  width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--surface-2); color: var(--accent); border: 2px solid var(--pc, var(--line));
+  font: 700 1.3rem/1 var(--font-display); letter-spacing: .02em;
+}
+.member h3 { font-size: 1.4rem; }
+.member .role { color: var(--muted); font-size: 14px; margin-top: 2px; }
+
+/* Contato */
+.contact { background: var(--band); color: var(--band-fg); border-top: 1px solid var(--band-line); }
+.contact .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.contact h2 { color: var(--band-fg); }
+.contact .lead { margin-top: 16px; color: var(--band-muted); max-width: 44ch; }
+.contact dl { margin: 0; display: grid; }
+.contact .row { padding-block: 16px; border-top: 1px solid var(--band-line); display: grid; gap: 4px; min-width: 0; }
+.contact .row:last-child { border-bottom: 1px solid var(--band-line); }
+.contact dt { font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--band-muted); }
+.contact dd { margin: 0; font-size: 1.2rem; overflow-wrap: anywhere; }
+@media (max-width: 860px) { .contact .wrap { grid-template-columns: minmax(0, 1fr); } }
+
+.ftr { background: var(--band); color: var(--band-muted); border-top: 1px solid var(--band-line); font-size: 14px; }
+.ftr .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-block: 20px; }
+.pad-sec { padding-block: clamp(48px, 7vw, 88px); }
+
+/* ---------- Bootstrap 6 ----------
+   O Bootstrap fica todo em @layer; este CSS fica fora de layers e por isso sempre vence.
+   Aqui os tokens do Bootstrap passam a usar a paleta do site, nos dois temas. */
+:root {
+  --bs-body-font-family: var(--font-body);
+  --bs-font-mono: var(--font-mono);
+  --bs-bg-body: var(--surface);
+  --bs-bg-1: var(--surface-2);
+  --bs-bg-2: var(--surface-2);
+  --bs-fg-body: var(--fg);
+  --bs-fg-3: var(--muted);
+  --bs-border-color: var(--line);
+  --bs-border-color-translucent: var(--line);
+  --bs-primary-base: var(--accent);
+  --bs-primary-bg: var(--accent);
+  --bs-primary-contrast: var(--accent-fg);
+  --bs-primary-fg: var(--link);
+  --bs-primary-focus-ring: color-mix(in srgb, var(--accent) 45%, transparent);
+  --bs-link-color: var(--link);
+}
+/* Só aparece quando o Bootstrap carregou; sem ele o site segue funcionando com as âncoras */
+html:not(.bs-ready) .js-only { display: none !important; }
+
+/* Cabeçalho: seção atual, tema e menu móvel */
+.nav a.l.nav-link { padding: 0; background: none; border: 0; border-radius: 0; }
+.nav a.l.active { color: var(--link); box-shadow: 0 2px 0 var(--link); }
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none;
+  background: none; border: 1px solid var(--line); border-radius: 4px; color: var(--fg); cursor: pointer;
+}
+.icon-btn:hover { background: var(--surface-2); }
+.menu-btn { display: none; }
+@media (max-width: 780px) { .nav { gap: 10px; } .menu-btn { display: inline-flex; } }
+@media (max-width: 480px) { .nav .nav-cta { display: none; } }
+.menu-movel a.l { display: block; padding: 12px 0; border-bottom: 1px solid var(--line); color: var(--fg); text-decoration: none; font-weight: 500; }
+.menu-movel a.l:hover { color: var(--link); }
+.menu-movel .btn { width: 100%; margin-top: 20px; }
+
+/* Rack: cada porta do patch panel leva a um serviço */
+.port { cursor: pointer; }
+.port .hw-port { transition: stroke .15s; }
+.port:hover .hw-port, .port:focus-visible .hw-port { stroke: var(--pc); stroke-width: 3; }
+.port:focus { outline: none; }
+.port:focus-visible .hw-port { stroke: var(--band-fg); }
+
+/* LED, assinatura usada na triagem e no pedido */
+.led { display: inline-block; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--hw-edge); }
+.led.on { background: var(--pc); box-shadow: 0 0 7px var(--pc); }
+@media (prefers-reduced-motion: no-preference) { .led { transition: background .2s, box-shadow .2s; } }
+
+/* Triagem por sintoma */
+.triagem { display: grid; gap: 14px; padding: 20px; margin-bottom: clamp(24px, 4vw, 40px); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; }
+.triagem .form-label { font-weight: 600; }
+.triagem .combobox-toggle { width: 100%; max-width: 560px; text-align: left; }
+.triagem .menu { max-height: 320px; overflow-y: auto; }
+.triagem-res { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; align-items: center; padding-top: 14px; border-top: 1px solid var(--line); }
+.triagem-res strong { font: 700 1.4rem/1.1 var(--font-display); }
+.triagem-res p { grid-column: 2; color: var(--muted); }
+.triagem-res .acoes { grid-column: 2; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+
+.svc-add { justify-self: start; padding: 0; background: none; border: 0; color: var(--link); font: 600 14px/1.4 var(--font-body); text-decoration: underline; text-underline-offset: .2em; cursor: pointer; }
+
+/* Gaveta fechada fora do layout: fora da tela, ela alargava a página no celular */
+dialog.drawer:not([open]) { display: none; }
+dialog.drawer { max-width: 100vw; }
+
+/* Gaveta de serviço */
+.svc-drawer .drawer-title { font: 700 1.7rem/1.1 var(--font-display); }
+.svc-drawer .drawer-body { display: grid; gap: 18px; align-content: start; }
+.svc-drawer .desc { color: var(--muted); }
+.svc-drawer .btn { width: 100%; }
+
+/* Pedido de orçamento */
+.pedido { --bs-dialog-width: 640px; }
+.pedido .dialog-header { gap: 14px; }
+.pedido .dialog-title { font: 700 1.8rem/1.05 var(--font-display); margin-top: 2px; }
+.pedido .dialog-header .btn-close { flex: none; margin-left: 0; }
+.painel { display: flex; align-items: center; gap: 7px; margin-left: auto; padding: 7px 9px; background: var(--hw); border: 1px solid var(--hw-edge); border-radius: 3px; }
+.pedido .stepper { --bs-stepper-size: 1.75rem; --bs-stepper-gap: .25rem; margin: 0 0 22px; font-family: var(--font-mono); }
+.pedido .stepper-item { font-size: 12px; }
+.etapa { display: grid; gap: 18px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.etapa > h3 { font-size: 1.5rem; }
+.etapa > h3:focus { outline: none; }
+.etapa .ajuda { color: var(--muted); margin-top: -10px; }
+.chips-svc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 480px) { .chips-svc { grid-template-columns: minmax(0, 1fr); } }
+.svc-chip.chip {
+  display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; height: auto; padding: 12px 14px;
+  background: var(--surface); color: var(--fg); border: 1.5px solid var(--line); border-radius: 4px;
+  font: 500 15px/1.25 var(--font-body); text-align: left; white-space: normal; cursor: pointer;
+}
+.svc-chip.chip:hover { background: var(--surface-2); color: var(--fg); }
+.svc-chip.chip.active { background: var(--surface-2); color: var(--fg); border-color: var(--pc); }
+.erro { color: var(--muted); font-weight: 600; border-left: 3px solid var(--p-or); padding-left: 10px; }
+.pedido .combobox-toggle { width: 100%; text-align: left; }
+.pedido[open] { display: flex; flex-direction: column; max-height: calc(100dvh - 32px); max-width: calc(100vw - 32px); }
+.pedido .dialog-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.pedido .dialog-header, .pedido .dialog-footer { flex: none; }
+.pedido label[for^="qtd-"] { display: flex; justify-content: space-between; gap: 12px; }
+.leitura { font-family: var(--font-mono); font-size: 13px; line-height: inherit; vertical-align: baseline; color: var(--muted); }
+.cal-wrap { overflow-x: auto; }
+.periodos { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.resumo { margin: 0; padding: 14px; max-height: 280px; overflow: auto; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; font: 13px/1.6 var(--font-mono); color: var(--fg); white-space: pre-wrap; overflow-wrap: anywhere; }
+.enviar { display: flex; flex-wrap: wrap; gap: 10px; }
+.pedido .dialog-footer { justify-content: space-between; }
+.pedido .toast-container { position: fixed; right: 12px; bottom: 12px; z-index: 5; max-width: calc(100% - 24px); }
+.contact .js-only { margin-top: 22px; }
+</style>
+
+<header class="hdr">
+  <div class="wrap">
+    <a class="brand" href="#inicio" aria-label="InfraTech, início">
+      <img class="logo only-light" src="assets/logo-claro.png" alt="InfraTech" width="205" height="36">
+      <img class="logo only-dark" src="assets/logo-escuro.png" alt="InfraTech" width="205" height="36">
+    </a>
+    <nav class="nav" id="nav-principal" aria-label="Principal">
+      <a class="l nav-link" href="#servicos">Serviços</a>
+      <a class="l nav-link" href="#processo">Como trabalhamos</a>
+      <a class="l nav-link" href="#sobre">Sobre</a>
+      <a class="l nav-link" href="#equipe">Equipe</a>
+      <a class="btn primary nav-cta" href="#contato" data-pedido>Pedir orçamento</a>
+      <div class="js-only">
+        <button class="icon-btn" type="button" data-bs-toggle="menu" data-bs-placement="bottom-end" aria-expanded="false" aria-label="Escolher tema">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1m0 1.5v11a5.5 5.5 0 0 1 0-11"/></svg>
+        </button>
+        <div class="menu" id="menu-tema">
+          <button class="menu-item" type="button" data-tema="auto">Igual ao sistema</button>
+          <button class="menu-item" type="button" data-tema="light">Claro</button>
+          <button class="menu-item" type="button" data-tema="dark">Escuro</button>
+        </div>
+      </div>
+      <button class="icon-btn menu-btn js-only" type="button" data-bs-toggle="drawer" data-bs-target="#menu-movel" aria-controls="menu-movel" aria-label="Abrir menu">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<dialog class="drawer drawer-end menu-movel" tabindex="-1" id="menu-movel" aria-labelledby="menu-movel-t">
+  <div class="drawer-header">
+    <p class="eyebrow" id="menu-movel-t">Menu</p>
+    <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Fechar"></button>
+  </div>
+  <div class="drawer-body">
+    <a class="l" href="#servicos">Serviços</a>
+    <a class="l" href="#processo">Como trabalhamos</a>
+    <a class="l" href="#sobre">Sobre</a>
+    <a class="l" href="#equipe">Equipe</a>
+    <a class="btn primary" href="#contato" data-pedido>Pedir orçamento</a>
+  </div>
+</dialog>
+
+<dialog class="drawer drawer-end svc-drawer" tabindex="-1" id="svc-drawer" aria-labelledby="svc-drawer-t">
+  <div class="drawer-header">
+    <h2 class="drawer-title" id="svc-drawer-t"></h2>
+    <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Fechar"></button>
+  </div>
+  <div class="drawer-body">
+    <p class="desc" id="svc-drawer-desc"></p>
+    <ul class="svc-items" id="svc-drawer-itens"></ul>
+    <button class="btn primary" type="button" id="svc-drawer-add">Incluir no pedido</button>
+  </div>
+</dialog>
+
+<dialog class="dialog pedido" id="pedido" aria-labelledby="pedido-t">
+  <div class="dialog-header">
+    <div>
+      <p class="eyebrow">Pedido de orçamento</p>
+      <h2 class="dialog-title" id="pedido-t">Monte seu pedido</h2>
+    </div>
+    <div class="painel" aria-hidden="true">
+      <span class="led" data-led="rede" style="--pc: var(--p-bl)"></span>
+      <span class="led" data-led="comp" style="--pc: var(--p-gr)"></span>
+      <span class="led" data-led="cftv" style="--pc: var(--p-or)"></span>
+      <span class="led" data-led="outros" style="--pc: var(--p-br)"></span>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="dialog" aria-label="Fechar"></button>
+  </div>
+  <form class="dialog-body" id="pedido-form" novalidate>
+    <ol class="stepper stepper-horizontal" id="pedido-passos">
+      <li class="stepper-item">Serviços</li>
+      <li class="stepper-item">Local</li>
+      <li class="stepper-item">Visita</li>
+      <li class="stepper-item">Resumo</li>
+    </ol>
+
+    <div class="etapa" data-etapa="0">
+      <h3 tabindex="-1">O que você precisa?</h3>
+      <p class="ajuda">Escolha um ou mais. Cada serviço acende uma porta no painel.</p>
+      <div class="chips-svc" id="chips-svc" role="group" aria-label="Serviços">
+        <button type="button" class="chip svc-chip" data-svc="rede" aria-pressed="false" style="--pc: var(--p-bl)"><span class="led" style="--pc: var(--p-bl)"></span>Infraestrutura de rede</button>
+        <button type="button" class="chip svc-chip" data-svc="comp" aria-pressed="false" style="--pc: var(--p-gr)"><span class="led" style="--pc: var(--p-gr)"></span>Manutenção de computadores</button>
+        <button type="button" class="chip svc-chip" data-svc="cftv" aria-pressed="false" style="--pc: var(--p-or)"><span class="led" style="--pc: var(--p-or)"></span>Sistemas de CFTV</button>
+        <button type="button" class="chip svc-chip" data-svc="outros" aria-pressed="false" style="--pc: var(--p-br)"><span class="led" style="--pc: var(--p-br)"></span>Outros serviços técnicos</button>
+      </div>
+      <p class="erro" id="pedido-erro" role="alert" hidden>Escolha pelo menos um serviço para continuar.</p>
+    </div>
+
+    <div class="etapa" data-etapa="1" hidden>
+      <h3 tabindex="-1">Onde será o serviço?</h3>
+      <div class="form-field">
+        <label class="form-label" for="tipo-local">Tipo de local</label>
+        <button class="form-control combobox-toggle" id="tipo-local" type="button" data-bs-toggle="combobox" data-bs-placeholder="Selecione…">
+          <span class="combobox-value">Selecione…</span>
+          <svg class="combobox-caret" width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6l4-4 4 4M1 10l4 4 4-4"/></svg>
+        </button>
+        <div class="menu">
+          <button class="menu-item" type="button" data-bs-value="Empresa">Empresa</button>
+          <button class="menu-item" type="button" data-bs-value="Comércio">Comércio</button>
+          <button class="menu-item" type="button" data-bs-value="Condomínio">Condomínio</button>
+          <button class="menu-item" type="button" data-bs-value="Residência">Residência</button>
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="pedido-cidade">Cidade e bairro</label>
+        <input class="form-control" id="pedido-cidade" type="text" autocomplete="address-level2">
+      </div>
+      <div class="form-field" data-so="rede" hidden>
+        <label class="form-label" for="qtd-pontos">Pontos de rede <span class="leitura" data-leitura="qtd-pontos">Não sei ainda</span></label>
+        <div class="form-range"><input class="form-range-input" id="qtd-pontos" type="range" min="0" max="48" step="1" value="0" list="marcas-pontos"></div>
+        <datalist id="marcas-pontos"><option value="0" label="Não sei"></option><option value="12" label="12"></option><option value="24" label="24"></option><option value="36" label="36"></option><option value="48" label="48"></option></datalist>
+      </div>
+      <div class="form-field" data-so="comp" hidden>
+        <label class="form-label" for="qtd-comp">Computadores <span class="leitura" data-leitura="qtd-comp">Não sei ainda</span></label>
+        <div class="form-range"><input class="form-range-input" id="qtd-comp" type="range" min="0" max="20" step="1" value="0" list="marcas-comp"></div>
+        <datalist id="marcas-comp"><option value="0" label="Não sei"></option><option value="5" label="5"></option><option value="10" label="10"></option><option value="15" label="15"></option><option value="20" label="20"></option></datalist>
+      </div>
+      <div class="form-field" data-so="cftv" hidden>
+        <label class="form-label" for="qtd-cam">Câmeras <span class="leitura" data-leitura="qtd-cam">Não sei ainda</span></label>
+        <div class="form-range"><input class="form-range-input" id="qtd-cam" type="range" min="0" max="32" step="1" value="0" list="marcas-cam"></div>
+        <datalist id="marcas-cam"><option value="0" label="Não sei"></option><option value="8" label="8"></option><option value="16" label="16"></option><option value="24" label="24"></option><option value="32" label="32"></option></datalist>
+      </div>
+    </div>
+
+    <div class="etapa" data-etapa="2" hidden>
+      <h3 tabindex="-1">Quando podemos visitar?</h3>
+      <p class="ajuda">É só uma preferência: a data é combinada com você depois. Pode pular se não precisar de visita.</p>
+      <div class="cal-wrap"><div id="pedido-cal"></div></div>
+      <div class="form-field">
+        <span class="form-label">Período</span>
+        <div class="periodos">
+          <div class="form-field"><input class="radio" type="radio" name="periodo" id="per-manha" value="manhã"><label for="per-manha">Manhã</label></div>
+          <div class="form-field"><input class="radio" type="radio" name="periodo" id="per-tarde" value="tarde"><label for="per-tarde">Tarde</label></div>
+          <div class="form-field"><input class="radio" type="radio" name="periodo" id="per-tanto" value="qualquer horário" checked><label for="per-tanto">Tanto faz</label></div>
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="pedido-det">Mais detalhes (opcional)</label>
+        <textarea class="form-control" id="pedido-det" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="etapa" data-etapa="3" hidden>
+      <h3 tabindex="-1">Confira e envie</h3>
+      <p class="ajuda">Nada é enviado até você tocar em um dos botões abaixo. A mensagem abre no seu aplicativo, e você ainda pode editá-la lá.</p>
+      <pre class="resumo" id="pedido-resumo" tabindex="0"></pre>
+      <div class="enviar">
+        <a class="btn primary" id="enviar-wa" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
+        <a class="btn ghost" id="enviar-mail">Enviar por e-mail</a>
+        <button class="btn ghost" type="button" id="enviar-copia">Copiar texto</button>
+      </div>
+    </div>
+  </form>
+  <div class="dialog-footer">
+    <button class="btn ghost" type="button" id="pedido-voltar">Voltar</button>
+    <button class="btn primary" type="button" id="pedido-seguir">Continuar</button>
+  </div>
+  <div class="toast-container">
+    <div class="toast" id="pedido-toast" role="status" aria-live="polite" aria-atomic="true">
+      <div class="toast-body" id="pedido-toast-txt"></div>
+    </div>
+  </div>
+</dialog>
+
+<main>
+  <section class="hero" id="inicio">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Soluções em tecnologia</p>
+        <h1>Rede estável, computador rápido, <em>câmera ligada.</em></h1>
+        <p class="lead">A InfraTech instala e mantém a estrutura técnica de empresas, comércios e residências: cabeamento, computadores e sistemas de câmeras, com um único contato para tudo.</p>
+        <div class="cta">
+          <a class="btn primary" href="#contato" data-pedido>Pedir orçamento</a>
+          <a class="btn ghost" href="#servicos">Ver serviços</a>
+        </div>
+      </div>
+      <div class="rack">
+        <svg id="rack" viewBox="0 0 600 236" role="group" aria-label="Patch panel e switch de rede. As portas do patch panel abrem os detalhes de cada serviço."></svg>
+        <p class="cap">Pares do cabo na ordem do padrão T568B<span class="js-only"> · Clique em uma porta para ver o serviço</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec alt" id="servicos">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Serviços</p>
+        <h2>O que a InfraTech instala e mantém</h2>
+        <p class="sub">Quatro frentes técnicas atendidas pela mesma equipe, para você não precisar contratar um prestador diferente para cada problema.</p>
+      </div>
+      <div class="triagem js-only">
+        <div class="form-field">
+          <label class="form-label" for="sintoma">Não sabe qual serviço pedir? Comece pelo que está acontecendo.</label>
+          <button class="form-control combobox-toggle" id="sintoma" type="button" data-bs-toggle="combobox" data-bs-search="true" data-bs-search-normalize="true" data-bs-placeholder="Escolha o que mais se parece com o seu caso…">
+            <span class="combobox-value">Escolha o que mais se parece com o seu caso…</span>
+            <svg class="combobox-caret" width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6l4-4 4 4M1 10l4 4 4-4"/></svg>
+          </button>
+          <div class="menu" id="sintoma-menu">
+            <div class="combobox-search"><input class="form-control combobox-search-input" type="text" placeholder="Buscar: wi-fi, lento, câmera…" autocomplete="off" aria-label="Buscar sintoma"></div>
+            <div class="combobox-no-results">Nada encontrado. Escolha “Não sei explicar”.</div>
+          </div>
+        </div>
+        <div class="triagem-res" id="triagem-res" aria-live="polite" hidden>
+          <span class="led on" id="triagem-led"></span>
+          <strong id="triagem-nome"></strong>
+          <p>Como resolvemos: <span id="triagem-item"></span>.</p>
+          <div class="acoes">
+            <button class="btn primary" type="button" id="triagem-pedir">Pedir orçamento</button>
+            <button class="btn ghost" type="button" id="triagem-ver">Ver o serviço</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <article class="svc" data-svc="rede" style="--tag: var(--p-bl)">
+          <div class="svc-tag">Rede</div>
+          <div class="svc-main">
+            <h3>Infraestrutura de rede</h3>
+            <p>Cabeamento e equipamentos organizados, com cada ponto identificado para facilitar qualquer manutenção futura.</p>
+            <button class="svc-add js-only" type="button" data-pedido data-svc="rede">Incluir no pedido</button>
+          </div>
+          <ul class="svc-items">
+            <li>Cabeamento estruturado Cat5e e Cat6</li>
+            <li>Configuração de roteadores, switches e Wi-Fi</li>
+            <li>Organização de rack e patch panel</li>
+            <li>Ampliação e reorganização de redes existentes</li>
+          </ul>
+        </article>
+        <article class="svc" data-svc="comp" style="--tag: var(--p-gr)">
+          <div class="svc-tag">Computadores</div>
+          <div class="svc-main">
+            <h3>Manutenção de computadores</h3>
+            <p>Computadores e notebooks de volta ao ritmo normal, sem perder seus arquivos no caminho.</p>
+            <button class="svc-add js-only" type="button" data-pedido data-svc="comp">Incluir no pedido</button>
+          </div>
+          <ul class="svc-items">
+            <li>Manutenção preventiva e corretiva</li>
+            <li>Limpeza, troca de pasta térmica e upgrade de SSD e memória</li>
+            <li>Formatação, instalação de sistema e programas</li>
+            <li>Remoção de vírus e backup de arquivos</li>
+          </ul>
+        </article>
+        <article class="svc" data-svc="cftv" style="--tag: var(--p-or)">
+          <div class="svc-tag">CFTV</div>
+          <div class="svc-main">
+            <h3>Sistemas de CFTV</h3>
+            <p>Câmeras posicionadas para cobrir o que importa, com imagens acessíveis pelo celular.</p>
+            <button class="svc-add js-only" type="button" data-pedido data-svc="cftv">Incluir no pedido</button>
+          </div>
+          <ul class="svc-items">
+            <li>Projeto e instalação de câmeras IP e analógicas</li>
+            <li>Configuração de DVR, NVR e acesso remoto</li>
+            <li>Cabeamento e alimentação das câmeras</li>
+            <li>Manutenção e ampliação de sistemas existentes</li>
+          </ul>
+        </article>
+        <article class="svc" data-svc="outros" style="--tag: var(--p-br)">
+          <div class="svc-tag">Outros</div>
+          <div class="svc-main">
+            <h3>Outros serviços técnicos</h3>
+            <p>Para o que não cabe nas três frentes acima, avaliamos o caso e dizemos com clareza se podemos atender.</p>
+            <button class="svc-add js-only" type="button" data-pedido data-svc="outros">Incluir no pedido</button>
+          </div>
+          <ul class="svc-items">
+            <li>Suporte técnico presencial e remoto</li>
+            <li>Contrato de manutenção mensal</li>
+            <li>Visita técnica e diagnóstico</li>
+            <li>Demandas técnicas sob consulta</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="processo">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Como trabalhamos</p>
+        <h2>Do primeiro contato à entrega</h2>
+      </div>
+      <ol class="steps">
+        <li><span class="n">01</span><h3>Diagnóstico</h3><p>Conversamos e, quando preciso, visitamos o local para entender o que existe e o que precisa mudar.</p></li>
+        <li><span class="n">02</span><h3>Proposta</h3><p>Você recebe o escopo e o valor por escrito antes de qualquer serviço começar.</p></li>
+        <li><span class="n">03</span><h3>Execução</h3><p>Instalação ou manutenção com materiais adequados e pontos identificados.</p></li>
+        <li><span class="n">04</span><h3>Entrega e suporte</h3><p>Testamos tudo com você, explicamos o que foi feito e seguimos disponíveis para ajustes.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec alt" id="sobre">
+    <div class="wrap about">
+      <div class="txt">
+        <p class="eyebrow">Sobre a InfraTech</p>
+        <h2>Uma equipe para toda a parte técnica</h2>
+        <p>Rede, computadores e câmeras costumam ser contratados separadamente, e quando algo falha cada prestador aponta para o outro. Na InfraTech, a mesma equipe projeta, instala e mantém os três, e responde pelo conjunto.</p>
+        <p>Atendemos empresas, comércios, condomínios e residências.</p>
+      </div>
+      <ul class="commit">
+        <li><strong>Um contato para tudo</strong><span>Rede, computador e câmera resolvidos na mesma conversa.</span></li>
+        <li><strong>Orçamento por escrito</strong><span>Escopo e valor combinados antes de começar.</span></li>
+        <li><strong>Instalação identificada</strong><span>Cabos, pontos e equipamentos etiquetados para facilitar o futuro.</span></li>
+        <li><strong>Suporte depois da entrega</strong><span>Ajustes e dúvidas continuam com a mesma equipe.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec" id="equipe">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Equipe</p>
+        <h2>Quem cuida do seu projeto</h2>
+      </div>
+      <!-- Funções a definir: trocar "Função a definir" pela área de cada um -->
+      <ul class="team">
+        <li class="member" style="--pc: var(--p-bl)"><span class="av" aria-hidden="true">DM</span><div><h3>Davi Moraes</h3><p class="role">Gerente de TI</p></div></li>
+        <li class="member" style="--pc: var(--p-gr)"><span class="av" aria-hidden="true">AL</span><div><h3>Alexandre Luiz</h3><p class="role">Gerente Administrativo</p></div></li>
+        <li class="member" style="--pc: var(--p-or)"><span class="av" aria-hidden="true">AJ</span><div><h3>Ana Júlia</h3><p class="role">Gerente de Materiais</p></div></li>
+        <li class="member" style="--pc: var(--p-br)"><span class="av" aria-hidden="true">CA</span><div><h3>Caio Antunes</h3><p class="role">Gerente de IA</p></div></li>
+        <li class="member" style="--pc: var(--p-bl)"><span class="av" aria-hidden="true">ME</span><div><h3>Maria Eduarda</h3><p class="role">Comunicação</p></div></li>
+        <li class="member" style="--pc: var(--p-gr)"><span class="av" aria-hidden="true">JA</span><div><h3>João Azevedo</h3><p class="role">Líder</p></div></li>
+        <li class="member" style="--pc: var(--p-or)"><span class="av" aria-hidden="true">MB</span><div><h3>Matheus Belthodo</h3><p class="role">Gerente de Projetos</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="contact pad-sec sec" id="contato">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow" style="color: var(--band-muted)">Contato</p>
+        <h2 style="margin-top: 12px">Peça seu orçamento</h2>
+        <p class="lead">Conte o que você precisa. Respondemos com os próximos passos e, se for o caso, agendamos uma visita técnica.</p>
+        <button class="btn primary js-only" type="button" data-pedido>Montar meu pedido</button>
+      </div>
+      <dl>
+        <div class="row"><dt>WhatsApp</dt><dd>(00) 00000-0000</dd></div>
+        <div class="row"><dt>E-mail</dt><dd>contato@seudominio.com.br</dd></div>
+        <div class="row"><dt>Atendimento</dt><dd>Cidade e região atendidas</dd></div>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<footer class="ftr">
+  <div class="wrap">
+    <span>© 2026 InfraTech. Todos os direitos reservados.</span>
+    <span>Redes · Suporte de TI · CFTV · Infraestrutura</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var NS = "http://www.w3.org/2000/svg";
+  var svg = document.getElementById("rack");
+  if (!svg) return;
+  function el(name, attrs) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    svg.appendChild(e);
+    return e;
+  }
+  function text(str, attrs) { var t = el("text", attrs); t.textContent = str; return t; }
+
+  var pairs = ["var(--p-or)", "var(--p-gr)", "var(--p-bl)", "var(--p-br)"];
+  var portSvc = ["cftv", "comp", "rede", "outros"]; // mesma cor do serviço na lista
+  var X0 = 66, PITCH = 40, PW = 28;
+
+  function unit(y, h, label) {
+    el("rect", { "class": "hw-ear", x: 0, y: y, width: 24, height: h, rx: 3 });
+    el("rect", { "class": "hw-ear", x: 576, y: y, width: 24, height: h, rx: 3 });
+    [0.28, 0.72].forEach(function (f) {
+      el("circle", { "class": "hw-hole", cx: 12, cy: y + h * f, r: 3.5 });
+      el("circle", { "class": "hw-hole", cx: 588, cy: y + h * f, r: 3.5 });
+    });
+    el("rect", { "class": "hw-body", x: 24, y: y, width: 552, height: h, rx: 4 });
+    text(label, { "class": "hw-lbl", x: 44, y: y + 22 });
+  }
+
+  // Patch panel: 12 portas, marcação de cor do par e numeração
+  unit(10, 100, "PATCH PANEL · CAT6 · 12 PORTAS");
+  for (var i = 0; i < 12; i++) {
+    var x = X0 + i * PITCH;
+    var g = el("g", { "class": "port", "data-svc": portSvc[i % 4], "data-n": i + 1, style: "--pc:" + pairs[i % 4] });
+    g.appendChild(el("rect", { x: x, y: 48, width: PW, height: 4, rx: 1, fill: pairs[i % 4] }));
+    g.appendChild(el("rect", { "class": "hw-port", x: x, y: 56, width: PW, height: 24, rx: 2 }));
+    g.appendChild(el("rect", { "class": "hw-pin", x: x + 6, y: 66, width: PW - 12, height: 6, rx: 1 }));
+    text(String(i + 1), { "class": "hw-num", x: x + PW / 2, y: 98 });
+  }
+
+  // Switch: 12 portas com LEDs de link e atividade
+  unit(126, 100, "SWITCH · 12 PORTAS");
+  var linkOff = { 4: 1, 9: 1 };
+  var activity = { 0: 0, 2: 0.4, 5: 0.9, 7: 0.2, 10: 0.7 };
+  for (var j = 0; j < 12; j++) {
+    var px = X0 + j * PITCH;
+    el("circle", { "class": linkOff[j] ? "led-off" : "led-on", cx: px + 8, cy: 162, r: 3 });
+    if (!linkOff[j] && activity.hasOwnProperty(j)) {
+      var c = el("circle", { "class": "led-act blink", cx: px + 20, cy: 162, r: 3 });
+      c.style.animationDelay = activity[j] + "s";
+    } else {
+      el("circle", { "class": "led-off", cx: px + 20, cy: 162, r: 3 });
+    }
+    el("rect", { "class": "hw-port", x: px, y: 172, width: PW, height: 24, rx: 2 });
+    el("rect", { "class": "hw-pin", x: px + 6, y: 182, width: PW - 12, height: 6, rx: 1 });
+    text(String(j + 1), { "class": "hw-num", x: px + PW / 2, y: 214 });
+  }
+})();
+</script>
+
+<script type="module">
+import { Datepicker, Dialog, Drawer, ScrollSpy, Toast, Tooltip } from "https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/js/bootstrap.bundle.min.js";
+
+/* PREENCHER ANTES DE PUBLICAR. Só dígitos, com país e DDD: "5511999999999".
+   Vazios, os botões abrem o WhatsApp e o e-mail sem destinatário, e a pessoa escolhe para quem enviar. */
+const CONTATO = { whatsapp: "", email: "" };
+
+const $ = (sel, raiz = document) => raiz.querySelector(sel);
+const $$ = (sel, raiz = document) => [...raiz.querySelectorAll(sel)];
+document.documentElement.classList.add("bs-ready");
+
+/* Os serviços vêm das próprias linhas da página: texto editado lá aparece aqui também */
+const SERVICOS = {};
+$$(".svc[data-svc]").forEach((art) => {
+  SERVICOS[art.dataset.svc] = {
+    nome: $("h3", art).textContent,
+    desc: $(".svc-main p", art).textContent,
+    itens: $$(".svc-items li", art).map((li) => li.textContent),
+    cor: art.style.getPropertyValue("--tag"),
+  };
+});
+
+/* ---------- Tema ---------- */
+function marcarTema(tema) {
+  $$("[data-tema]").forEach((b) => b.classList.toggle("active", b.dataset.tema === tema));
+}
+function definirTema(tema) {
+  const raiz = document.documentElement;
+  if (tema === "auto") {
+    raiz.removeAttribute("data-theme");
+    raiz.removeAttribute("data-bs-theme");
+  } else {
+    raiz.setAttribute("data-theme", tema);
+    raiz.setAttribute("data-bs-theme", tema);
+  }
+  try { localStorage.setItem("infratech-tema", tema); } catch (e) {}
+  marcarTema(tema);
+}
+marcarTema(document.documentElement.getAttribute("data-theme") || "auto");
+$("#menu-tema").addEventListener("click", (ev) => {
+  const b = ev.target.closest("[data-tema]");
+  if (b) definirTema(b.dataset.tema);
+});
+
+/* ---------- Navegação ---------- */
+new ScrollSpy(document.body, { target: "#nav-principal", topMargin: "96px" });
+$$("#menu-movel a.l").forEach((a) => a.addEventListener("click", () => Drawer.getOrCreateInstance($("#menu-movel")).hide()));
+
+/* ---------- Gaveta de serviço ---------- */
+const gaveta = $("#svc-drawer");
+let svcAberto = null;
+function abrirServico(id) {
+  const s = SERVICOS[id];
+  svcAberto = id;
+  $("#svc-drawer-t").textContent = s.nome;
+  $("#svc-drawer-desc").textContent = s.desc;
+  const lista = $("#svc-drawer-itens");
+  lista.style.setProperty("--tag", s.cor);
+  lista.replaceChildren(...s.itens.map((t) => Object.assign(document.createElement("li"), { textContent: t })));
+  Drawer.getOrCreateInstance(gaveta).show();
+}
+$("#svc-drawer-add").addEventListener("click", () => {
+  gaveta.addEventListener("hidden.bs.drawer", () => abrirPedido({ svc: svcAberto }), { once: true });
+  Drawer.getOrCreateInstance(gaveta).hide();
+});
+
+/* ---------- Rack: portas do patch panel ---------- */
+const portasVistas = new Set();
+$$("#rack .port").forEach((porta) => {
+  const id = porta.dataset.svc;
+  const rotulo = `Porta ${porta.dataset.n}: ${SERVICOS[id].nome}`;
+  porta.setAttribute("role", "button");
+  porta.setAttribute("aria-label", rotulo);
+  // Um ponto de parada do teclado por serviço, não doze
+  porta.setAttribute("tabindex", portasVistas.has(id) ? "-1" : "0");
+  portasVistas.add(id);
+  const dica = new Tooltip(porta, { title: rotulo, placement: "top" });
+  const abrir = () => { dica.hide(); abrirServico(id); };
+  porta.addEventListener("click", abrir);
+  porta.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); abrir(); }
+  });
+});
+
+/* ---------- Triagem por sintoma ---------- */
+const SINTOMAS = [
+  ["Wi-Fi não chega em parte do local", "rede", "Configuração de roteadores, switches e Wi-Fi"],
+  ["Internet cai ou fica lenta em alguns pontos", "rede", "Ampliação e reorganização de redes existentes"],
+  ["Cabos bagunçados e sem identificação", "rede", "Organização de rack e patch panel"],
+  ["Preciso de novos pontos de rede", "rede", "Cabeamento estruturado Cat5e e Cat6"],
+  ["Computador lento ou travando", "comp", "Limpeza, troca de pasta térmica e upgrade de SSD e memória"],
+  ["Notebook esquentando muito", "comp", "Limpeza, troca de pasta térmica e upgrade de SSD e memória"],
+  ["Vírus ou janelas estranhas na tela", "comp", "Remoção de vírus e backup de arquivos"],
+  ["Preciso formatar sem perder arquivos", "comp", "Formatação, instalação de sistema e programas"],
+  ["Câmera sem imagem ou desligada", "cftv", "Manutenção e ampliação de sistemas existentes"],
+  ["Não consigo ver as câmeras pelo celular", "cftv", "Configuração de DVR, NVR e acesso remoto"],
+  ["Quero instalar câmeras", "cftv", "Projeto e instalação de câmeras IP e analógicas"],
+  ["Quero suporte fixo todo mês", "outros", "Contrato de manutenção mensal"],
+  ["Não sei explicar, preciso que alguém olhe", "outros", "Visita técnica e diagnóstico"],
+];
+const menuSintoma = $("#sintoma-menu");
+SINTOMAS.forEach(([texto], i) => {
+  const item = Object.assign(document.createElement("button"), { type: "button", className: "menu-item", textContent: texto });
+  item.dataset.bsValue = String(i);
+  menuSintoma.append(item);
+});
+let sintomaAtual = null;
+$("#sintoma").addEventListener("change.bs.combobox", (ev) => {
+  sintomaAtual = SINTOMAS[Number(ev.value)];
+  const s = SERVICOS[sintomaAtual[1]];
+  $("#triagem-led").style.setProperty("--pc", s.cor);
+  $("#triagem-nome").textContent = s.nome;
+  $("#triagem-item").textContent = sintomaAtual[2].toLowerCase();
+  $("#triagem-res").hidden = false;
+});
+$("#triagem-ver").addEventListener("click", () => abrirServico(sintomaAtual[1]));
+$("#triagem-pedir").addEventListener("click", () => abrirPedido({ svc: sintomaAtual[1], sintoma: sintomaAtual[0] }));
+
+/* ---------- Pedido de orçamento ---------- */
+const dlgPedido = $("#pedido");
+const etapas = $$("[data-etapa]", dlgPedido);
+const passos = $$(".stepper-item", dlgPedido);
+const RANGES = { rede: ["qtd-pontos", "Pontos de rede"], comp: ["qtd-comp", "Computadores"], cftv: ["qtd-cam", "Câmeras"] };
+const pedido = { servicos: new Set(), tipo: "", data: "" };
+let etapa = 0;
+let calendario = null;
+
+function iso(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function dataPorExtenso(valor) {
+  const [a, m, d] = valor.split("-").map(Number);
+  return new Date(a, m - 1, d).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
+}
+function sincronizarServicos() {
+  $$(".svc-chip", dlgPedido).forEach((c) => {
+    const on = pedido.servicos.has(c.dataset.svc);
+    c.classList.toggle("active", on);
+    c.setAttribute("aria-pressed", String(on));
+    $(".led", c).classList.toggle("on", on);
+  });
+  $$("[data-led]", dlgPedido).forEach((l) => l.classList.toggle("on", pedido.servicos.has(l.dataset.led)));
+  $$("[data-so]", dlgPedido).forEach((f) => { f.hidden = !pedido.servicos.has(f.dataset.so); });
+  if (pedido.servicos.size) $("#pedido-erro").hidden = true;
+}
+function mensagem() {
+  const linhas = ["Olá, InfraTech! Gostaria de um orçamento.", ""];
+  const nomes = [...pedido.servicos].map((id) => SERVICOS[id].nome);
+  linhas.push(`Serviços: ${nomes.join(", ")}`);
+  const local = [pedido.tipo, $("#pedido-cidade").value.trim()].filter(Boolean).join(", ");
+  if (local) linhas.push(`Local: ${local}`);
+  Object.entries(RANGES).forEach(([svc, [id, nome]]) => {
+    const v = Number($(`#${id}`).value);
+    if (pedido.servicos.has(svc) && v > 0) linhas.push(`${nome}: ${v}`);
+  });
+  if (pedido.data) {
+    const periodo = $('input[name="periodo"]:checked').value;
+    linhas.push(`Visita de preferência: ${dataPorExtenso(pedido.data)}, ${periodo}`);
+  }
+  const det = $("#pedido-det").value.trim();
+  if (det) linhas.push("", det);
+  return linhas.join("\n");
+}
+function irPara(n) {
+  etapa = n;
+  etapas.forEach((e, i) => { e.hidden = i !== n; });
+  passos.forEach((p, i) => {
+    p.classList.toggle("active", i <= n);
+    if (i === n) p.setAttribute("aria-current", "step"); else p.removeAttribute("aria-current");
+  });
+  $("#pedido-voltar").style.visibility = n === 0 ? "hidden" : "visible";
+  $("#pedido-seguir").hidden = n === etapas.length - 1;
+  if (n === 2 && !calendario) {
+    const amanha = new Date();
+    amanha.setDate(amanha.getDate() + 1);
+    calendario = new Datepicker($("#pedido-cal"), {
+      inline: true, locale: "pt-BR", firstWeekday: 0, dateMin: iso(amanha),
+    });
+  }
+  if (n === 3) {
+    const txt = mensagem();
+    $("#pedido-resumo").textContent = txt;
+    const corpo = encodeURIComponent(txt);
+    $("#enviar-wa").href = `https://wa.me/${CONTATO.whatsapp}?text=${corpo}`;
+    $("#enviar-mail").href = `mailto:${CONTATO.email}?subject=${encodeURIComponent("Pedido de orçamento")}&body=${corpo}`;
+  }
+  $("h3", etapas[n]).focus({ preventScroll: true });
+  $(".dialog-body", dlgPedido).scrollTop = 0;
+}
+function abrirPedido({ svc, sintoma } = {}) {
+  if (svc) pedido.servicos.add(svc);
+  const det = $("#pedido-det");
+  if (sintoma && !det.value.includes(sintoma)) det.value = (det.value ? det.value + "\n" : "") + sintoma;
+  sincronizarServicos();
+  Dialog.getOrCreateInstance(dlgPedido).show();
+  irPara(0);
+}
+$$("[data-pedido]").forEach((b) => b.addEventListener("click", (ev) => {
+  ev.preventDefault(); // sem o Bootstrap este código nem roda, e o link segue para a seção de contato
+  const noMenu = b.closest("#menu-movel");
+  if (noMenu) {
+    noMenu.addEventListener("hidden.bs.drawer", () => abrirPedido(), { once: true });
+    Drawer.getOrCreateInstance(noMenu).hide();
+  } else {
+    abrirPedido({ svc: b.dataset.svc });
+  }
+}));
+$("#chips-svc").addEventListener("click", (ev) => {
+  const c = ev.target.closest(".svc-chip");
+  if (!c) return;
+  const id = c.dataset.svc;
+  if (pedido.servicos.has(id)) pedido.servicos.delete(id); else pedido.servicos.add(id);
+  sincronizarServicos();
+});
+$("#pedido-seguir").addEventListener("click", () => {
+  if (etapa === 0 && !pedido.servicos.size) { $("#pedido-erro").hidden = false; return; }
+  irPara(etapa + 1);
+});
+$("#pedido-voltar").addEventListener("click", () => irPara(etapa - 1));
+$("#pedido-form").addEventListener("submit", (ev) => ev.preventDefault());
+$("#tipo-local").addEventListener("change.bs.combobox", (ev) => { pedido.tipo = ev.value; });
+$("#pedido-cal").addEventListener("change.bs.datepicker", (ev) => { pedido.data = ev.dates[0] || ""; });
+$$('input[type="range"]', dlgPedido).forEach((r) => {
+  r.addEventListener("input", () => {
+    const txt = Number(r.value) === 0 ? "Não sei ainda" : r.value;
+    $(`[data-leitura="${r.id}"]`).textContent = txt;
+    r.setAttribute("aria-valuetext", txt);
+  });
+});
+const avisoCopia = new Toast($("#pedido-toast"), { delay: 2600 });
+$("#enviar-copia").addEventListener("click", async () => {
+  let ok = true;
+  try { await navigator.clipboard.writeText($("#pedido-resumo").textContent); } catch (e) { ok = false; }
+  $("#pedido-toast-txt").textContent = ok ? "Texto copiado." : "Não deu para copiar automaticamente. Selecione o texto acima.";
+  avisoCopia.show();
+});
+</script>
+
+</body></html>

@@ -1,8 +1,13 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="pt-BR">
+<head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>InfraTech</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<meta name="description" content="InfraTech: infraestrutura de rede, manutenção de computadores e sistemas de CFTV para empresas, comércios, condomínios e residências.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <!-- Bootstrap 6 ainda é pré-lançamento: versão fixada de propósito. Ao atualizar, troque a URL e os dois hashes. -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css" integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe" crossorigin="anonymous">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-1a/pXj49ZQ1aHEmrJ+gMw1otqoVsYwlEnlD8mIfY2TV03r20Y0CN7uqx1tQogjPL" crossorigin="anonymous">
@@ -10,336 +15,133 @@
 /* Aplica o tema salvo antes da primeira pintura, para não piscar */
 try {
   var temaSalvo = localStorage.getItem("infratech-tema");
-  if (temaSalvo === "light" || temaSalvo === "dark") {
-    document.documentElement.setAttribute("data-theme", temaSalvo);
-    document.documentElement.setAttribute("data-bs-theme", temaSalvo);
-  }
+  if (temaSalvo === "light" || temaSalvo === "dark") document.documentElement.setAttribute("data-bs-theme", temaSalvo);
 } catch (e) {}
-document.documentElement.lang = "pt-BR";
 </script>
 <style>
-/* Layout: cabeçalho fixo; hero em duas colunas com painel de rack (patch panel + switch);
-   serviços em linhas (etiqueta | descrição | itens); processo em 4 etapas; sobre; equipe; faixa escura de contato.
-   Assinatura visual: o código de cores dos pares do cabo de rede (laranja, verde, azul, marrom). */
+/* O visual vem do Bootstrap. Aqui ficam só a marca (cores e fontes, aplicadas nos tokens do Bootstrap)
+   e o que ele não tem: o rack em SVG, os LEDs, o ritmo das seções e a troca do logo.
+   As cores usam light-dark(): valem para os dois temas e seguem o data-bs-theme de cada trecho. */
 :root {
-  --font-display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
-  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --bs-body-font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bs-font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --bs-heading-font-family: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --bs-heading-font-weight: 700;
+  --bs-heading-line-height: 1.05;
 
-  --bg: #F2F4F8;
-  --surface: #FFFFFF;
-  --surface-2: #E5EAF2;
-  --fg: #141A26;
-  --muted: #4A5568;
-  --line: #CBD3DF;
-  --accent: #0A55D6;
-  --accent-fg: #FFFFFF;
-  --link: #0A55D6;
+  --bs-bg-body: light-dark(#F2F4F8, #0A0F18);
+  --bs-bg-1: light-dark(#FFFFFF, #111826);
+  --bs-bg-2: light-dark(#E5EAF2, #182234);
+  --bs-fg-body: light-dark(#141A26, #E8EDF5);
+  --bs-fg-3: light-dark(#4A5568, #A0ABBD);
+  --bs-border-color: light-dark(#CBD3DF, #243047);
 
-  --hw: #18232F;
-  --hw-edge: #2C3C4B;
-  --hw-port: #0A1016;
-  --hw-label: #93A6B7;
+  --bs-primary-base: light-dark(#0A55D6, #4C9BF5);
+  --bs-primary-bg: light-dark(#0A55D6, #4C9BF5);
+  --bs-primary-fg: light-dark(#0A55D6, #6FB0F8);
+  --bs-primary-fg-emphasis: light-dark(#073F9F, #A9CFFB);
+  --bs-primary-bg-subtle: light-dark(#E3ECFB, #10233F);
+  --bs-primary-border: light-dark(#9CBCF0, #2B5A94);
+  --bs-primary-contrast: light-dark(#FFFFFF, #07101E);
+  --bs-link-color: var(--bs-primary-fg);
 
+  /* Pares do cabo de rede no padrão T568B: a cor de cada serviço */
   --p-or: #E8812E;
   --p-gr: #3FA34D;
   --p-bl: #2F7FD1;
   --p-br: #9A6844;
 
-  --band: #141A26;
-  --band-fg: #E8EDF5;
-  --band-muted: #A0ABBD;
-  --band-line: #2A3448;
+  /* Equipamento do rack: escuro nos dois temas */
+  --hw: light-dark(#18232F, #16212C);
+  --hw-edge: light-dark(#2C3C4B, #34475A);
+  --hw-port: light-dark(#0A1016, #070C11);
+  --hw-label: #93A6B7;
 }
-/* Logo: versão clara e versão para fundo escuro */
-.only-dark { display: none; }
+html { scroll-padding-top: 4.5rem; }
+
+/* Ritmo das seções: o maior espaçador do Bootstrap (3rem) fica curto no desktop */
+.secao { padding-block: clamp(3rem, 7vw, 5.5rem); }
+.medida { max-inline-size: 58ch; }
+.eyebrow { letter-spacing: .14em; }
+
+/* Logo claro ou escuro, conforme o tema */
+.logo-escuro { display: none; }
+[data-bs-theme="dark"] .logo-claro { display: none; }
+[data-bs-theme="dark"] .logo-escuro { display: inline; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .only-light { display: none; }
-  :root:not([data-theme="light"]) .only-dark { display: block; }
-}
-:root[data-theme="dark"] .only-light { display: none; }
-:root[data-theme="dark"] .only-dark { display: block; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0A0F18; --surface: #111826; --surface-2: #182234; --fg: #E8EDF5; --muted: #A0ABBD; --line: #243047;
-    --accent: #4C9BF5; --accent-fg: #07101E; --link: #6FB0F8;
-    --hw: #16212C; --hw-edge: #34475A; --hw-port: #070C11; --hw-label: #93A6B7;
-    --band: #101B26; --band-fg: #E7EEF4; --band-muted: #9FB0BF; --band-line: #243545;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0A0F18; --surface: #111826; --surface-2: #182234; --fg: #E8EDF5; --muted: #A0ABBD; --line: #243047;
-  --accent: #4C9BF5; --accent-fg: #07101E; --link: #6FB0F8;
-  --hw: #16212C; --hw-edge: #34475A; --hw-port: #070C11; --hw-label: #93A6B7;
-  --band: #101B26; --band-fg: #E7EEF4; --band-muted: #9FB0BF; --band-line: #243545;
-  color-scheme: dark;
+  :root:not([data-bs-theme="light"]) .logo-claro { display: none; }
+  :root:not([data-bs-theme="light"]) .logo-escuro { display: inline; }
 }
 
-*, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: auto; }
-@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-body::before {
-  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg);
-}
-h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.04; margin: 0; text-wrap: balance; }
-h2 { font-size: clamp(1.9rem, 4.2vw, 2.9rem); }
-h3 { font-size: 1.5rem; line-height: 1.1; }
-p { margin: 0; }
-a { color: var(--link); }
-:focus-visible { outline: 3px solid var(--link); outline-offset: 3px; border-radius: 2px; }
+/* Gaveta fechada fica fora do layout: posicionada fora da tela, ela alargava a página no celular.
+   Com a navbar expandida o Bootstrap a mostra na barra (display com !important), e isto não interfere. */
+dialog.drawer:not([open]) { display: none; }
 
-.wrap {
-  width: 100%; max-width: 1120px; margin: 0 auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-.eyebrow {
-  font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
-}
+/* Só aparece quando o Bootstrap carregou; sem ele o site segue funcionando com as âncoras */
+html:not(.bs-ready) .js-only { display: none !important; }
 
-/* Cabeçalho */
-.hdr { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
-.hdr .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
-.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--fg); text-decoration: none; }
-.brand .logo { height: 36px; width: auto; flex: none; }
-.nav { display: flex; align-items: center; gap: 22px; }
-.nav a.l { color: var(--fg); text-decoration: none; font-size: 14px; font-weight: 500; }
-.nav a.l:hover { color: var(--link); }
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 12px 20px; border-radius: 4px; border: 1.5px solid transparent;
-  font: 600 15px/1 var(--font-body); text-decoration: none; cursor: pointer;
-}
-.btn.primary { background: var(--accent); color: var(--accent-fg); }
-.btn.primary:hover { filter: brightness(1.08); }
-.btn.ghost { border-color: var(--fg); color: var(--fg); }
-.btn.ghost:hover { background: var(--surface-2); }
-.hdr .btn { padding: 10px 16px; font-size: 14px; white-space: nowrap; }
-@media (max-width: 420px) { .brand .logo { height: 30px; } .hdr .btn { padding: 9px 12px; font-size: 13px; } }
-@media (max-width: 780px) { .nav a.l { display: none; } }
+/* Serviços: a cor do par marca a etiqueta e os itens */
+.svc-tag { --bs-border-color: var(--tag); }
+.svc-items { list-style: square; }
+.svc-items li::marker { color: var(--tag); }
 
-/* Hero */
-.hero { padding-block: clamp(40px, 7vw, 88px); }
-.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
-.hero h1 { font-size: clamp(2.7rem, 7.2vw, 5rem); margin-top: 16px; }
-.hero h1 em { font-style: normal; color: var(--accent); }
-.hero .lead { margin-top: 22px; font-size: 1.125rem; color: var(--muted); max-width: 52ch; }
-.hero .cta { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; }
-.rack { min-width: 0; }
-.rack svg { display: block; width: 100%; height: auto; max-width: 600px; margin-left: auto; }
-.rack .cap { margin-top: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-align: right; letter-spacing: .04em; }
-@media (max-width: 860px) {
-  .hero .wrap { grid-template-columns: minmax(0, 1fr); }
-  .rack svg { margin-left: 0; }
-  .rack .cap { text-align: left; }
-}
+/* Rack */
 .hw-body { fill: var(--hw); stroke: var(--hw-edge); stroke-width: 1.5; }
 .hw-ear { fill: var(--hw-edge); }
 .hw-hole { fill: var(--hw-port); }
 .hw-port { fill: var(--hw-port); stroke: var(--hw-edge); stroke-width: 1.5; }
 .hw-pin { fill: var(--hw-edge); }
-.hw-lbl { fill: var(--hw-label); font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; }
-.hw-num { fill: var(--hw-label); font-family: var(--font-mono); font-size: 10px; text-anchor: middle; }
+.hw-lbl { fill: var(--hw-label); font-family: var(--bs-font-mono); font-size: 11px; letter-spacing: .08em; }
+.hw-num { fill: var(--hw-label); font-family: var(--bs-font-mono); font-size: 10px; text-anchor: middle; }
 .led-on { fill: var(--p-gr); }
 .led-off { fill: var(--hw-edge); }
 .led-act { fill: var(--p-or); }
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
-@media (prefers-reduced-motion: no-preference) { .blink { animation: blink 1.6s ease-in-out infinite; } }
-
-/* Seções */
-.sec { padding-block: clamp(48px, 7vw, 88px); scroll-margin-top: 72px; }
-.sec-head { display: grid; gap: 12px; margin-bottom: clamp(24px, 4vw, 40px); }
-.sec-head p.sub { color: var(--muted); max-width: 60ch; }
-.alt { background: var(--surface); border-block: 1px solid var(--line); }
-
-/* Serviços */
-.svc { display: grid; grid-template-columns: 150px minmax(0, 1fr) minmax(0, 1.1fr); gap: 20px 32px; padding-block: 28px; border-top: 1px solid var(--line); }
-.svc:last-child { border-bottom: 1px solid var(--line); }
-.svc-tag { align-self: start; border-left: 6px solid var(--tag); padding: 2px 0 2px 12px; font-family: var(--font-mono); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
-.svc-main { display: grid; gap: 10px; align-content: start; }
-.svc-main p { color: var(--muted); max-width: 46ch; }
-.svc-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; align-content: start; }
-.svc-items li { position: relative; padding-left: 20px; }
-.svc-items li::before { content: ""; position: absolute; left: 0; top: .6em; width: 9px; height: 3px; background: var(--tag); border-radius: 2px; }
-@media (max-width: 860px) { .svc { grid-template-columns: minmax(0, 1fr); gap: 14px; } }
-
-/* Processo */
-.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 28px 24px; }
-.steps li { border-top: 3px solid var(--fg); padding-top: 16px; display: grid; gap: 8px; align-content: start; }
-.steps .n { font-family: var(--font-mono); font-size: 13px; color: var(--accent); letter-spacing: .1em; }
-.steps p { color: var(--muted); }
-
-/* Sobre */
-.about { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
-.about .txt { display: grid; gap: 18px; }
-.about .txt p { color: var(--muted); max-width: 52ch; }
-.commit { list-style: none; margin: 0; padding: 0; }
-.commit li { padding-block: 18px; border-top: 1px solid var(--line); display: grid; gap: 4px; }
-.commit li:last-child { border-bottom: 1px solid var(--line); }
-.commit strong { font-weight: 600; }
-.commit span { color: var(--muted); }
-@media (max-width: 860px) { .about { grid-template-columns: minmax(0, 1fr); } }
-
-/* Equipe */
-.team { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0 32px; }
-.member { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px; align-items: center; padding-block: 18px; border-top: 1px solid var(--line); }
-.member .av {
-  width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center;
-  background: var(--surface-2); color: var(--accent); border: 2px solid var(--pc, var(--line));
-  font: 700 1.3rem/1 var(--font-display); letter-spacing: .02em;
-}
-.member h3 { font-size: 1.4rem; }
-.member .role { color: var(--muted); font-size: 14px; margin-top: 2px; }
-
-/* Contato */
-.contact { background: var(--band); color: var(--band-fg); border-top: 1px solid var(--band-line); }
-.contact .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
-.contact h2 { color: var(--band-fg); }
-.contact .lead { margin-top: 16px; color: var(--band-muted); max-width: 44ch; }
-.contact dl { margin: 0; display: grid; }
-.contact .row { padding-block: 16px; border-top: 1px solid var(--band-line); display: grid; gap: 4px; min-width: 0; }
-.contact .row:last-child { border-bottom: 1px solid var(--band-line); }
-.contact dt { font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--band-muted); }
-.contact dd { margin: 0; font-size: 1.2rem; overflow-wrap: anywhere; }
-@media (max-width: 860px) { .contact .wrap { grid-template-columns: minmax(0, 1fr); } }
-
-.ftr { background: var(--band); color: var(--band-muted); border-top: 1px solid var(--band-line); font-size: 14px; }
-.ftr .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-block: 20px; }
-.pad-sec { padding-block: clamp(48px, 7vw, 88px); }
-
-/* ---------- Bootstrap 6 ----------
-   O Bootstrap fica todo em @layer; este CSS fica fora de layers e por isso sempre vence.
-   Aqui os tokens do Bootstrap passam a usar a paleta do site, nos dois temas. */
-:root {
-  --bs-body-font-family: var(--font-body);
-  --bs-font-mono: var(--font-mono);
-  --bs-bg-body: var(--surface);
-  --bs-bg-1: var(--surface-2);
-  --bs-bg-2: var(--surface-2);
-  --bs-fg-body: var(--fg);
-  --bs-fg-3: var(--muted);
-  --bs-border-color: var(--line);
-  --bs-border-color-translucent: var(--line);
-  --bs-primary-base: var(--accent);
-  --bs-primary-bg: var(--accent);
-  --bs-primary-contrast: var(--accent-fg);
-  --bs-primary-fg: var(--link);
-  --bs-primary-focus-ring: color-mix(in srgb, var(--accent) 45%, transparent);
-  --bs-link-color: var(--link);
-}
-/* Só aparece quando o Bootstrap carregou; sem ele o site segue funcionando com as âncoras */
-html:not(.bs-ready) .js-only { display: none !important; }
-
-/* Cabeçalho: seção atual, tema e menu móvel */
-.nav a.l.nav-link { padding: 0; background: none; border: 0; border-radius: 0; }
-.nav a.l.active { color: var(--link); box-shadow: 0 2px 0 var(--link); }
-.icon-btn {
-  display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none;
-  background: none; border: 1px solid var(--line); border-radius: 4px; color: var(--fg); cursor: pointer;
-}
-.icon-btn:hover { background: var(--surface-2); }
-.menu-btn { display: none; }
-@media (max-width: 780px) { .nav { gap: 10px; } .menu-btn { display: inline-flex; } }
-@media (max-width: 480px) { .nav .nav-cta { display: none; } }
-.menu-movel a.l { display: block; padding: 12px 0; border-bottom: 1px solid var(--line); color: var(--fg); text-decoration: none; font-weight: 500; }
-.menu-movel a.l:hover { color: var(--link); }
-.menu-movel .btn { width: 100%; margin-top: 20px; }
-
-/* Rack: cada porta do patch panel leva a um serviço */
 .port { cursor: pointer; }
-.port .hw-port { transition: stroke .15s; }
-.port:hover .hw-port, .port:focus-visible .hw-port { stroke: var(--pc); stroke-width: 3; }
 .port:focus { outline: none; }
-.port:focus-visible .hw-port { stroke: var(--band-fg); }
-
-/* LED, assinatura usada na triagem e no pedido */
-.led { display: inline-block; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--hw-edge); }
-.led.on { background: var(--pc); box-shadow: 0 0 7px var(--pc); }
-@media (prefers-reduced-motion: no-preference) { .led { transition: background .2s, box-shadow .2s; } }
-
-/* Triagem por sintoma */
-.triagem { display: grid; gap: 14px; padding: 20px; margin-bottom: clamp(24px, 4vw, 40px); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; }
-.triagem .form-label { font-weight: 600; }
-.triagem .combobox-toggle { width: 100%; max-width: 560px; text-align: left; }
-.triagem .menu { max-height: 320px; overflow-y: auto; }
-.triagem-res { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; align-items: center; padding-top: 14px; border-top: 1px solid var(--line); }
-.triagem-res strong { font: 700 1.4rem/1.1 var(--font-display); }
-.triagem-res p { grid-column: 2; color: var(--muted); }
-.triagem-res .acoes { grid-column: 2; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-
-.svc-add { justify-self: start; padding: 0; background: none; border: 0; color: var(--link); font: 600 14px/1.4 var(--font-body); text-decoration: underline; text-underline-offset: .2em; cursor: pointer; }
-
-/* Gaveta fechada fora do layout: fora da tela, ela alargava a página no celular */
-dialog.drawer:not([open]) { display: none; }
-dialog.drawer { max-width: 100vw; }
-
-/* Gaveta de serviço */
-.svc-drawer .drawer-title { font: 700 1.7rem/1.1 var(--font-display); }
-.svc-drawer .drawer-body { display: grid; gap: 18px; align-content: start; }
-.svc-drawer .desc { color: var(--muted); }
-.svc-drawer .btn { width: 100%; }
-
-/* Pedido de orçamento */
-.pedido { --bs-dialog-width: 640px; }
-.pedido .dialog-header { gap: 14px; }
-.pedido .dialog-title { font: 700 1.8rem/1.05 var(--font-display); margin-top: 2px; }
-.pedido .dialog-header .btn-close { flex: none; margin-left: 0; }
-.painel { display: flex; align-items: center; gap: 7px; margin-left: auto; padding: 7px 9px; background: var(--hw); border: 1px solid var(--hw-edge); border-radius: 3px; }
-.pedido .stepper { --bs-stepper-size: 1.75rem; --bs-stepper-gap: .25rem; margin: 0 0 22px; font-family: var(--font-mono); }
-.pedido .stepper-item { font-size: 12px; }
-.etapa { display: grid; gap: 18px; min-width: 0; margin: 0; padding: 0; border: 0; }
-.etapa > h3 { font-size: 1.5rem; }
-.etapa > h3:focus { outline: none; }
-.etapa .ajuda { color: var(--muted); margin-top: -10px; }
-.chips-svc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 480px) { .chips-svc { grid-template-columns: minmax(0, 1fr); } }
-.svc-chip.chip {
-  display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; height: auto; padding: 12px 14px;
-  background: var(--surface); color: var(--fg); border: 1.5px solid var(--line); border-radius: 4px;
-  font: 500 15px/1.25 var(--font-body); text-align: left; white-space: normal; cursor: pointer;
+.port:hover .hw-port, .port:focus-visible .hw-port { stroke: var(--pc); stroke-width: 3; }
+.port:focus-visible .hw-port { stroke: #E8EDF5; }
+@keyframes piscar { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
+@media (prefers-reduced-motion: no-preference) {
+  .blink { animation: piscar 1.6s ease-in-out infinite; }
+  .port .hw-port { transition: stroke .15s; }
+  .led { transition: background-color .2s, box-shadow .2s; }
 }
-.svc-chip.chip:hover { background: var(--surface-2); color: var(--fg); }
-.svc-chip.chip.active { background: var(--surface-2); color: var(--fg); border-color: var(--pc); }
-.erro { color: var(--muted); font-weight: 600; border-left: 3px solid var(--p-or); padding-left: 10px; }
-.pedido .combobox-toggle { width: 100%; text-align: left; }
-.pedido[open] { display: flex; flex-direction: column; max-height: calc(100dvh - 32px); max-width: calc(100vw - 32px); }
-.pedido .dialog-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
-.pedido .dialog-header, .pedido .dialog-footer { flex: none; }
-.pedido label[for^="qtd-"] { display: flex; justify-content: space-between; gap: 12px; }
-.leitura { font-family: var(--font-mono); font-size: 13px; line-height: inherit; vertical-align: baseline; color: var(--muted); }
-.cal-wrap { overflow-x: auto; }
-.periodos { display: flex; flex-wrap: wrap; gap: 8px 24px; }
-.resumo { margin: 0; padding: 14px; max-height: 280px; overflow: auto; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; font: 13px/1.6 var(--font-mono); color: var(--fg); white-space: pre-wrap; overflow-wrap: anywhere; }
-.enviar { display: flex; flex-wrap: wrap; gap: 10px; }
-.pedido .dialog-footer { justify-content: space-between; }
-.pedido .toast-container { position: fixed; right: 12px; bottom: 12px; z-index: 5; max-width: calc(100% - 24px); }
-.contact .js-only { margin-top: 22px; }
-</style>
 
-<header class="hdr">
-  <div class="wrap">
-    <a class="brand" href="#inicio" aria-label="InfraTech, início">
-      <img class="logo only-light" src="assets/logo-claro.png" alt="InfraTech" width="205" height="36">
-      <img class="logo only-dark" src="assets/logo-escuro.png" alt="InfraTech" width="205" height="36">
+/* LED: acende com a cor do serviço na triagem e no pedido */
+.led { display: inline-block; flex: none; width: 10px; height: 10px; border-radius: 50%; background-color: var(--hw-edge); }
+.led.on { background-color: var(--pc); box-shadow: 0 0 7px var(--pc); }
+.painel { background-color: var(--hw); border: 1px solid var(--hw-edge); }
+
+.resumo { max-height: 280px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+<nav class="navbar lg:navbar-expand sticky-top bg-body border-bottom" aria-label="Principal">
+  <div class="container gx-9">
+    <a class="navbar-brand py-0" href="#inicio" aria-label="InfraTech, início">
+      <img class="logo-claro" src="assets/logo-claro.png" alt="InfraTech" width="205" height="36">
+      <img class="logo-escuro" src="assets/logo-escuro.png" alt="InfraTech" width="205" height="36">
     </a>
-    <nav class="nav" id="nav-principal" aria-label="Principal">
-      <a class="l nav-link" href="#servicos">Serviços</a>
-      <a class="l nav-link" href="#processo">Como trabalhamos</a>
-      <a class="l nav-link" href="#sobre">Sobre</a>
-      <a class="l nav-link" href="#equipe">Equipe</a>
-      <a class="btn primary nav-cta" href="#contato" data-pedido>Pedir orçamento</a>
+    <dialog class="drawer drawer-end" tabindex="-1" id="menu-movel" aria-labelledby="menu-movel-t">
+      <div class="drawer-header">
+        <p class="drawer-title eyebrow font-monospace fs-xs text-uppercase fg-3 mb-0" id="menu-movel-t">Menu</p>
+        <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Fechar"></button>
+      </div>
+      <div class="drawer-body flex-column align-items-stretch gap-6">
+        <ul class="navbar-nav lg:ms-auto" id="nav-principal">
+          <li class="nav-item"><a class="nav-link" href="#servicos">Serviços</a></li>
+          <li class="nav-item"><a class="nav-link" href="#processo">Como trabalhamos</a></li>
+          <li class="nav-item"><a class="nav-link" href="#sobre">Sobre</a></li>
+          <li class="nav-item"><a class="nav-link" href="#equipe">Equipe</a></li>
+        </ul>
+        <a class="btn btn-solid theme-primary lg:d-none" href="#contato" data-pedido>Pedir orçamento</a>
+      </div>
+    </dialog>
+    <div class="hstack gap-3 ms-auto lg:ms-4">
+      <a class="btn btn-solid theme-primary d-none sm:d-inline-flex" href="#contato" data-pedido>Pedir orçamento</a>
       <div class="js-only">
-        <button class="icon-btn" type="button" data-bs-toggle="menu" data-bs-placement="bottom-end" aria-expanded="false" aria-label="Escolher tema">
+        <button class="btn btn-icon btn-outline theme-secondary" type="button" data-bs-toggle="menu" data-bs-placement="bottom-end" aria-expanded="false" aria-label="Escolher tema">
           <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1m0 1.5v11a5.5 5.5 0 0 1 0-11"/></svg>
         </button>
         <div class="menu" id="menu-tema">
@@ -348,78 +150,64 @@ dialog.drawer { max-width: 100vw; }
           <button class="menu-item" type="button" data-tema="dark">Escuro</button>
         </div>
       </div>
-      <button class="icon-btn menu-btn js-only" type="button" data-bs-toggle="drawer" data-bs-target="#menu-movel" aria-controls="menu-movel" aria-label="Abrir menu">
-        <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+      <button class="navbar-toggler js-only" type="button" data-bs-toggle="drawer" data-bs-target="#menu-movel" aria-controls="menu-movel" aria-label="Abrir menu">
+        <span class="navbar-toggler-icon"></span>
       </button>
-    </nav>
-  </div>
-</header>
-
-<dialog class="drawer drawer-end menu-movel" tabindex="-1" id="menu-movel" aria-labelledby="menu-movel-t">
-  <div class="drawer-header">
-    <p class="eyebrow" id="menu-movel-t">Menu</p>
-    <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Fechar"></button>
-  </div>
-  <div class="drawer-body">
-    <a class="l" href="#servicos">Serviços</a>
-    <a class="l" href="#processo">Como trabalhamos</a>
-    <a class="l" href="#sobre">Sobre</a>
-    <a class="l" href="#equipe">Equipe</a>
-    <a class="btn primary" href="#contato" data-pedido>Pedir orçamento</a>
-  </div>
-</dialog>
-
-<dialog class="drawer drawer-end svc-drawer" tabindex="-1" id="svc-drawer" aria-labelledby="svc-drawer-t">
-  <div class="drawer-header">
-    <h2 class="drawer-title" id="svc-drawer-t"></h2>
-    <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Fechar"></button>
-  </div>
-  <div class="drawer-body">
-    <p class="desc" id="svc-drawer-desc"></p>
-    <ul class="svc-items" id="svc-drawer-itens"></ul>
-    <button class="btn primary" type="button" id="svc-drawer-add">Incluir no pedido</button>
-  </div>
-</dialog>
-
-<dialog class="dialog pedido" id="pedido" aria-labelledby="pedido-t">
-  <div class="dialog-header">
-    <div>
-      <p class="eyebrow">Pedido de orçamento</p>
-      <h2 class="dialog-title" id="pedido-t">Monte seu pedido</h2>
     </div>
-    <div class="painel" aria-hidden="true">
+  </div>
+</nav>
+
+<dialog class="drawer drawer-end" tabindex="-1" id="svc-drawer" aria-labelledby="svc-drawer-t">
+  <div class="drawer-header">
+    <h2 class="drawer-title fs-2xl mb-0" id="svc-drawer-t"></h2>
+    <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Fechar"></button>
+  </div>
+  <div class="drawer-body vstack gap-6">
+    <p class="fg-3 mb-0" id="svc-drawer-desc"></p>
+    <ul class="svc-items vstack gap-3 ps-6 mb-0" id="svc-drawer-itens"></ul>
+    <button class="btn btn-solid theme-primary w-100" type="button" id="svc-drawer-add">Incluir no pedido</button>
+  </div>
+</dialog>
+
+<dialog class="dialog dialog-scrollable" id="pedido" aria-labelledby="pedido-t" style="--bs-dialog-width: 640px">
+  <div class="dialog-header gap-4">
+    <div>
+      <p class="eyebrow font-monospace fs-xs text-uppercase fg-3 mb-1">Pedido de orçamento</p>
+      <h2 class="dialog-title fs-3xl" id="pedido-t">Monte seu pedido</h2>
+    </div>
+    <div class="painel hstack gap-2 align-self-center ms-auto px-3 py-2 rounded-2" aria-hidden="true">
       <span class="led" data-led="rede" style="--pc: var(--p-bl)"></span>
       <span class="led" data-led="comp" style="--pc: var(--p-gr)"></span>
       <span class="led" data-led="cftv" style="--pc: var(--p-or)"></span>
       <span class="led" data-led="outros" style="--pc: var(--p-br)"></span>
     </div>
-    <button type="button" class="btn-close" data-bs-dismiss="dialog" aria-label="Fechar"></button>
+    <button type="button" class="btn-close ms-0 flex-shrink-0" data-bs-dismiss="dialog" aria-label="Fechar"></button>
   </div>
   <form class="dialog-body" id="pedido-form" novalidate>
-    <ol class="stepper stepper-horizontal" id="pedido-passos">
+    <ol class="stepper stepper-horizontal font-monospace fs-xs mb-7" id="pedido-passos">
       <li class="stepper-item">Serviços</li>
       <li class="stepper-item">Local</li>
       <li class="stepper-item">Visita</li>
       <li class="stepper-item">Resumo</li>
     </ol>
 
-    <div class="etapa" data-etapa="0">
-      <h3 tabindex="-1">O que você precisa?</h3>
-      <p class="ajuda">Escolha um ou mais. Cada serviço acende uma porta no painel.</p>
-      <div class="chips-svc" id="chips-svc" role="group" aria-label="Serviços">
-        <button type="button" class="chip svc-chip" data-svc="rede" aria-pressed="false" style="--pc: var(--p-bl)"><span class="led" style="--pc: var(--p-bl)"></span>Infraestrutura de rede</button>
-        <button type="button" class="chip svc-chip" data-svc="comp" aria-pressed="false" style="--pc: var(--p-gr)"><span class="led" style="--pc: var(--p-gr)"></span>Manutenção de computadores</button>
-        <button type="button" class="chip svc-chip" data-svc="cftv" aria-pressed="false" style="--pc: var(--p-or)"><span class="led" style="--pc: var(--p-or)"></span>Sistemas de CFTV</button>
-        <button type="button" class="chip svc-chip" data-svc="outros" aria-pressed="false" style="--pc: var(--p-br)"><span class="led" style="--pc: var(--p-br)"></span>Outros serviços técnicos</button>
+    <div class="vstack gap-6" data-etapa="0">
+      <h3 class="fs-xl mb-0" tabindex="-1">O que você precisa?</h3>
+      <p class="fg-3 mb-0">Escolha um ou mais. Cada serviço acende uma porta no painel.</p>
+      <div class="row row-cols-1 sm:row-cols-2 g-3" id="chips-svc" role="group" aria-label="Serviços">
+        <div><label class="btn-check btn-outline theme-primary w-100 h-100 justify-content-start text-start text-wrap"><input type="checkbox" data-svc="rede"><span class="led" style="--pc: var(--p-bl)"></span>Infraestrutura de rede</label></div>
+        <div><label class="btn-check btn-outline theme-primary w-100 h-100 justify-content-start text-start text-wrap"><input type="checkbox" data-svc="comp"><span class="led" style="--pc: var(--p-gr)"></span>Manutenção de computadores</label></div>
+        <div><label class="btn-check btn-outline theme-primary w-100 h-100 justify-content-start text-start text-wrap"><input type="checkbox" data-svc="cftv"><span class="led" style="--pc: var(--p-or)"></span>Sistemas de CFTV</label></div>
+        <div><label class="btn-check btn-outline theme-primary w-100 h-100 justify-content-start text-start text-wrap"><input type="checkbox" data-svc="outros"><span class="led" style="--pc: var(--p-br)"></span>Outros serviços técnicos</label></div>
       </div>
-      <p class="erro" id="pedido-erro" role="alert" hidden>Escolha pelo menos um serviço para continuar.</p>
+      <p class="alert theme-warning mb-0" id="pedido-erro" role="alert" hidden>Escolha pelo menos um serviço para continuar.</p>
     </div>
 
-    <div class="etapa" data-etapa="1" hidden>
-      <h3 tabindex="-1">Onde será o serviço?</h3>
+    <div class="vstack gap-6" data-etapa="1" hidden>
+      <h3 class="fs-xl mb-0" tabindex="-1">Onde será o serviço?</h3>
       <div class="form-field">
         <label class="form-label" for="tipo-local">Tipo de local</label>
-        <button class="form-control combobox-toggle" id="tipo-local" type="button" data-bs-toggle="combobox" data-bs-placeholder="Selecione…">
+        <button class="form-control combobox-toggle w-100 text-start" id="tipo-local" type="button" data-bs-toggle="combobox" data-bs-placeholder="Selecione…">
           <span class="combobox-value">Selecione…</span>
           <svg class="combobox-caret" width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6l4-4 4 4M1 10l4 4 4-4"/></svg>
         </button>
@@ -435,29 +223,29 @@ dialog.drawer { max-width: 100vw; }
         <input class="form-control" id="pedido-cidade" type="text" autocomplete="address-level2">
       </div>
       <div class="form-field" data-so="rede" hidden>
-        <label class="form-label" for="qtd-pontos">Pontos de rede <span class="leitura" data-leitura="qtd-pontos">Não sei ainda</span></label>
+        <label class="form-label d-flex justify-content-between gap-4" for="qtd-pontos">Pontos de rede <span class="font-monospace fs-sm fg-3" data-leitura="qtd-pontos">Não sei ainda</span></label>
         <div class="form-range"><input class="form-range-input" id="qtd-pontos" type="range" min="0" max="48" step="1" value="0" list="marcas-pontos"></div>
         <datalist id="marcas-pontos"><option value="0" label="Não sei"></option><option value="12" label="12"></option><option value="24" label="24"></option><option value="36" label="36"></option><option value="48" label="48"></option></datalist>
       </div>
       <div class="form-field" data-so="comp" hidden>
-        <label class="form-label" for="qtd-comp">Computadores <span class="leitura" data-leitura="qtd-comp">Não sei ainda</span></label>
+        <label class="form-label d-flex justify-content-between gap-4" for="qtd-comp">Computadores <span class="font-monospace fs-sm fg-3" data-leitura="qtd-comp">Não sei ainda</span></label>
         <div class="form-range"><input class="form-range-input" id="qtd-comp" type="range" min="0" max="20" step="1" value="0" list="marcas-comp"></div>
         <datalist id="marcas-comp"><option value="0" label="Não sei"></option><option value="5" label="5"></option><option value="10" label="10"></option><option value="15" label="15"></option><option value="20" label="20"></option></datalist>
       </div>
       <div class="form-field" data-so="cftv" hidden>
-        <label class="form-label" for="qtd-cam">Câmeras <span class="leitura" data-leitura="qtd-cam">Não sei ainda</span></label>
+        <label class="form-label d-flex justify-content-between gap-4" for="qtd-cam">Câmeras <span class="font-monospace fs-sm fg-3" data-leitura="qtd-cam">Não sei ainda</span></label>
         <div class="form-range"><input class="form-range-input" id="qtd-cam" type="range" min="0" max="32" step="1" value="0" list="marcas-cam"></div>
         <datalist id="marcas-cam"><option value="0" label="Não sei"></option><option value="8" label="8"></option><option value="16" label="16"></option><option value="24" label="24"></option><option value="32" label="32"></option></datalist>
       </div>
     </div>
 
-    <div class="etapa" data-etapa="2" hidden>
-      <h3 tabindex="-1">Quando podemos visitar?</h3>
-      <p class="ajuda">É só uma preferência: a data é combinada com você depois. Pode pular se não precisar de visita.</p>
-      <div class="cal-wrap"><div id="pedido-cal"></div></div>
+    <div class="vstack gap-6" data-etapa="2" hidden>
+      <h3 class="fs-xl mb-0" tabindex="-1">Quando podemos visitar?</h3>
+      <p class="fg-3 mb-0">É só uma preferência: a data é combinada com você depois. Pode pular se não precisar de visita.</p>
+      <div class="overflow-x-auto"><div id="pedido-cal"></div></div>
       <div class="form-field">
         <span class="form-label">Período</span>
-        <div class="periodos">
+        <div class="d-flex flex-wrap column-gap-7 row-gap-3">
           <div class="form-field"><input class="radio" type="radio" name="periodo" id="per-manha" value="manhã"><label for="per-manha">Manhã</label></div>
           <div class="form-field"><input class="radio" type="radio" name="periodo" id="per-tarde" value="tarde"><label for="per-tarde">Tarde</label></div>
           <div class="form-field"><input class="radio" type="radio" name="periodo" id="per-tanto" value="qualquer horário" checked><label for="per-tanto">Tanto faz</label></div>
@@ -469,22 +257,22 @@ dialog.drawer { max-width: 100vw; }
       </div>
     </div>
 
-    <div class="etapa" data-etapa="3" hidden>
-      <h3 tabindex="-1">Confira e envie</h3>
-      <p class="ajuda">Nada é enviado até você tocar em um dos botões abaixo. A mensagem abre no seu aplicativo, e você ainda pode editá-la lá.</p>
-      <pre class="resumo" id="pedido-resumo" tabindex="0"></pre>
-      <div class="enviar">
-        <a class="btn primary" id="enviar-wa" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
-        <a class="btn ghost" id="enviar-mail">Enviar por e-mail</a>
-        <button class="btn ghost" type="button" id="enviar-copia">Copiar texto</button>
+    <div class="vstack gap-6" data-etapa="3" hidden>
+      <h3 class="fs-xl mb-0" tabindex="-1">Confira e envie</h3>
+      <p class="fg-3 mb-0">Nada é enviado até você tocar em um dos botões abaixo. A mensagem abre no seu aplicativo, e você ainda pode editá-la lá.</p>
+      <pre class="resumo bg-2 border rounded-4 p-5 mb-0 font-monospace fs-sm overflow-auto" id="pedido-resumo" tabindex="0"></pre>
+      <div class="d-flex flex-wrap gap-3">
+        <a class="btn btn-solid theme-primary" id="enviar-wa" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
+        <a class="btn btn-outline theme-secondary" id="enviar-mail">Enviar por e-mail</a>
+        <button class="btn btn-outline theme-secondary" type="button" id="enviar-copia">Copiar texto</button>
       </div>
     </div>
   </form>
-  <div class="dialog-footer">
-    <button class="btn ghost" type="button" id="pedido-voltar">Voltar</button>
-    <button class="btn primary" type="button" id="pedido-seguir">Continuar</button>
+  <div class="dialog-footer justify-content-between">
+    <button class="btn btn-outline theme-secondary" type="button" id="pedido-voltar">Voltar</button>
+    <button class="btn btn-solid theme-primary" type="button" id="pedido-seguir">Continuar</button>
   </div>
-  <div class="toast-container">
+  <div class="toast-container position-fixed bottom-0 end-0 p-4">
     <div class="toast" id="pedido-toast" role="status" aria-live="polite" aria-atomic="true">
       <div class="toast-body" id="pedido-toast-txt"></div>
     </div>
@@ -492,184 +280,205 @@ dialog.drawer { max-width: 100vw; }
 </dialog>
 
 <main>
-  <section class="hero" id="inicio">
-    <div class="wrap">
-      <div>
-        <p class="eyebrow">Soluções em tecnologia</p>
-        <h1>Rede estável, computador rápido, <em>câmera ligada.</em></h1>
-        <p class="lead">A InfraTech instala e mantém a estrutura técnica de empresas, comércios e residências: cabeamento, computadores e sistemas de câmeras, com um único contato para tudo.</p>
-        <div class="cta">
-          <a class="btn primary" href="#contato" data-pedido>Pedir orçamento</a>
-          <a class="btn ghost" href="#servicos">Ver serviços</a>
+  <section class="secao" id="inicio">
+    <div class="container gx-9">
+      <div class="row align-items-center gx-12 gy-10">
+        <div class="col-12 lg:col-6">
+          <p class="eyebrow font-monospace fs-xs text-uppercase fg-3 mb-0">Soluções em tecnologia</p>
+          <h1 class="fs-6xl text-balance mt-5 mb-0">Rede estável, computador rápido, <em class="fst-normal fg-primary">câmera ligada.</em></h1>
+          <p class="medida fs-lg fg-3 mt-7 mb-0">A InfraTech instala e mantém a estrutura técnica de empresas, comércios e residências: cabeamento, computadores e sistemas de câmeras, com um único contato para tudo.</p>
+          <div class="d-flex flex-wrap gap-4 mt-9">
+            <a class="btn btn-lg btn-solid theme-primary" href="#contato" data-pedido>Pedir orçamento</a>
+            <a class="btn btn-lg btn-outline theme-secondary" href="#servicos">Ver serviços</a>
+          </div>
         </div>
-      </div>
-      <div class="rack">
-        <svg id="rack" viewBox="0 0 600 236" role="group" aria-label="Patch panel e switch de rede. As portas do patch panel abrem os detalhes de cada serviço."></svg>
-        <p class="cap">Pares do cabo na ordem do padrão T568B<span class="js-only"> · Clique em uma porta para ver o serviço</span></p>
+        <div class="col-12 lg:col-6 min-w-0">
+          <svg class="d-block w-100 h-auto" id="rack" viewBox="0 0 600 236" role="group" aria-label="Patch panel e switch de rede. As portas do patch panel abrem os detalhes de cada serviço."></svg>
+          <p class="font-monospace fs-xs fg-3 mt-3 mb-0 lg:text-end">Pares do cabo na ordem do padrão T568B<span class="js-only"> · Clique em uma porta para ver o serviço</span></p>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="sec alt" id="servicos">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="eyebrow">Serviços</p>
-        <h2>O que a InfraTech instala e mantém</h2>
-        <p class="sub">Quatro frentes técnicas atendidas pela mesma equipe, para você não precisar contratar um prestador diferente para cada problema.</p>
-      </div>
-      <div class="triagem js-only">
-        <div class="form-field">
-          <label class="form-label" for="sintoma">Não sabe qual serviço pedir? Comece pelo que está acontecendo.</label>
-          <button class="form-control combobox-toggle" id="sintoma" type="button" data-bs-toggle="combobox" data-bs-search="true" data-bs-search-normalize="true" data-bs-placeholder="Escolha o que mais se parece com o seu caso…">
-            <span class="combobox-value">Escolha o que mais se parece com o seu caso…</span>
+  <section class="secao bg-1 border-y" id="servicos">
+    <div class="container gx-9">
+      <header class="vstack gap-4 mb-11">
+        <p class="eyebrow font-monospace fs-xs text-uppercase fg-3 mb-0">Serviços</p>
+        <h2 class="fs-4xl text-balance mb-0">O que a InfraTech instala e mantém</h2>
+        <p class="medida fg-3 mb-0">Quatro frentes técnicas atendidas pela mesma equipe, para você não precisar contratar um prestador diferente para cada problema.</p>
+      </header>
+
+      <div class="card card-body bg-body vstack gap-5 mb-11 js-only">
+        <div class="form-field min-w-0">
+          <label class="form-label fw-semibold" for="sintoma">Não sabe qual serviço pedir? Comece pelo que está acontecendo.</label>
+          <button class="form-control combobox-toggle w-100 min-w-0 text-start" id="sintoma" type="button" data-bs-toggle="combobox" data-bs-search="true" data-bs-search-normalize="true" data-bs-placeholder="Escolha o que mais se parece com o seu caso…">
+            <span class="combobox-value text-truncate">Escolha o que mais se parece com o seu caso…</span>
             <svg class="combobox-caret" width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6l4-4 4 4M1 10l4 4 4-4"/></svg>
           </button>
-          <div class="menu" id="sintoma-menu">
+          <div class="menu menu-scrollable" id="sintoma-menu">
             <div class="combobox-search"><input class="form-control combobox-search-input" type="text" placeholder="Buscar: wi-fi, lento, câmera…" autocomplete="off" aria-label="Buscar sintoma"></div>
             <div class="combobox-no-results">Nada encontrado. Escolha “Não sei explicar”.</div>
           </div>
         </div>
-        <div class="triagem-res" id="triagem-res" aria-live="polite" hidden>
-          <span class="led on" id="triagem-led"></span>
-          <strong id="triagem-nome"></strong>
-          <p>Como resolvemos: <span id="triagem-item"></span>.</p>
-          <div class="acoes">
-            <button class="btn primary" type="button" id="triagem-pedir">Pedir orçamento</button>
-            <button class="btn ghost" type="button" id="triagem-ver">Ver o serviço</button>
+        <div class="hstack gap-4 align-items-start border-top pt-5" id="triagem-res" aria-live="polite" hidden>
+          <span class="led on mt-3" id="triagem-led"></span>
+          <div class="vstack gap-3 align-items-start">
+            <strong class="h3 fs-xl mb-0" id="triagem-nome"></strong>
+            <p class="fg-3 mb-0">Como resolvemos: <span id="triagem-item"></span>.</p>
+            <div class="d-flex flex-wrap gap-3">
+              <button class="btn btn-solid theme-primary" type="button" id="triagem-pedir">Pedir orçamento</button>
+              <button class="btn btn-outline theme-secondary" type="button" id="triagem-ver">Ver o serviço</button>
+            </div>
           </div>
         </div>
       </div>
-      <div>
-        <article class="svc" data-svc="rede" style="--tag: var(--p-bl)">
-          <div class="svc-tag">Rede</div>
-          <div class="svc-main">
-            <h3>Infraestrutura de rede</h3>
-            <p>Cabeamento e equipamentos organizados, com cada ponto identificado para facilitar qualquer manutenção futura.</p>
-            <button class="svc-add js-only" type="button" data-pedido data-svc="rede">Incluir no pedido</button>
+
+      <div class="border-bottom">
+        <article class="svc row gy-5 py-9 border-top" data-svc="rede" style="--tag: var(--p-bl)">
+          <div class="col-12 lg:col-2"><span class="svc-tag eyebrow d-inline-block border-start border-5 ps-3 font-monospace fs-xs text-uppercase">Rede</span></div>
+          <div class="col-12 md:col-6 lg:col-5 vstack gap-3 align-items-start">
+            <h3 class="fs-xl mb-0">Infraestrutura de rede</h3>
+            <p class="svc-desc medida fg-3 mb-0">Cabeamento e equipamentos organizados, com cada ponto identificado para facilitar qualquer manutenção futura.</p>
+            <button class="btn btn-link px-0 js-only" type="button" data-pedido data-svc="rede">Incluir no pedido</button>
           </div>
-          <ul class="svc-items">
-            <li>Cabeamento estruturado Cat5e e Cat6</li>
-            <li>Configuração de roteadores, switches e Wi-Fi</li>
-            <li>Organização de rack e patch panel</li>
-            <li>Ampliação e reorganização de redes existentes</li>
-          </ul>
+          <div class="col-12 md:col-6 lg:col-5">
+            <ul class="svc-items vstack gap-3 ps-6 mb-0">
+              <li>Cabeamento estruturado Cat5e e Cat6</li>
+              <li>Configuração de roteadores, switches e Wi-Fi</li>
+              <li>Organização de rack e patch panel</li>
+              <li>Ampliação e reorganização de redes existentes</li>
+            </ul>
+          </div>
         </article>
-        <article class="svc" data-svc="comp" style="--tag: var(--p-gr)">
-          <div class="svc-tag">Computadores</div>
-          <div class="svc-main">
-            <h3>Manutenção de computadores</h3>
-            <p>Computadores e notebooks de volta ao ritmo normal, sem perder seus arquivos no caminho.</p>
-            <button class="svc-add js-only" type="button" data-pedido data-svc="comp">Incluir no pedido</button>
+        <article class="svc row gy-5 py-9 border-top" data-svc="comp" style="--tag: var(--p-gr)">
+          <div class="col-12 lg:col-2"><span class="svc-tag eyebrow d-inline-block border-start border-5 ps-3 font-monospace fs-xs text-uppercase">Computadores</span></div>
+          <div class="col-12 md:col-6 lg:col-5 vstack gap-3 align-items-start">
+            <h3 class="fs-xl mb-0">Manutenção de computadores</h3>
+            <p class="svc-desc medida fg-3 mb-0">Computadores e notebooks de volta ao ritmo normal, sem perder seus arquivos no caminho.</p>
+            <button class="btn btn-link px-0 js-only" type="button" data-pedido data-svc="comp">Incluir no pedido</button>
           </div>
-          <ul class="svc-items">
-            <li>Manutenção preventiva e corretiva</li>
-            <li>Limpeza, troca de pasta térmica e upgrade de SSD e memória</li>
-            <li>Formatação, instalação de sistema e programas</li>
-            <li>Remoção de vírus e backup de arquivos</li>
-          </ul>
+          <div class="col-12 md:col-6 lg:col-5">
+            <ul class="svc-items vstack gap-3 ps-6 mb-0">
+              <li>Manutenção preventiva e corretiva</li>
+              <li>Limpeza, troca de pasta térmica e upgrade de SSD e memória</li>
+              <li>Formatação, instalação de sistema e programas</li>
+              <li>Remoção de vírus e backup de arquivos</li>
+            </ul>
+          </div>
         </article>
-        <article class="svc" data-svc="cftv" style="--tag: var(--p-or)">
-          <div class="svc-tag">CFTV</div>
-          <div class="svc-main">
-            <h3>Sistemas de CFTV</h3>
-            <p>Câmeras posicionadas para cobrir o que importa, com imagens acessíveis pelo celular.</p>
-            <button class="svc-add js-only" type="button" data-pedido data-svc="cftv">Incluir no pedido</button>
+        <article class="svc row gy-5 py-9 border-top" data-svc="cftv" style="--tag: var(--p-or)">
+          <div class="col-12 lg:col-2"><span class="svc-tag eyebrow d-inline-block border-start border-5 ps-3 font-monospace fs-xs text-uppercase">CFTV</span></div>
+          <div class="col-12 md:col-6 lg:col-5 vstack gap-3 align-items-start">
+            <h3 class="fs-xl mb-0">Sistemas de CFTV</h3>
+            <p class="svc-desc medida fg-3 mb-0">Câmeras posicionadas para cobrir o que importa, com imagens acessíveis pelo celular.</p>
+            <button class="btn btn-link px-0 js-only" type="button" data-pedido data-svc="cftv">Incluir no pedido</button>
           </div>
-          <ul class="svc-items">
-            <li>Projeto e instalação de câmeras IP e analógicas</li>
-            <li>Configuração de DVR, NVR e acesso remoto</li>
-            <li>Cabeamento e alimentação das câmeras</li>
-            <li>Manutenção e ampliação de sistemas existentes</li>
-          </ul>
+          <div class="col-12 md:col-6 lg:col-5">
+            <ul class="svc-items vstack gap-3 ps-6 mb-0">
+              <li>Projeto e instalação de câmeras IP e analógicas</li>
+              <li>Configuração de DVR, NVR e acesso remoto</li>
+              <li>Cabeamento e alimentação das câmeras</li>
+              <li>Manutenção e ampliação de sistemas existentes</li>
+            </ul>
+          </div>
         </article>
-        <article class="svc" data-svc="outros" style="--tag: var(--p-br)">
-          <div class="svc-tag">Outros</div>
-          <div class="svc-main">
-            <h3>Outros serviços técnicos</h3>
-            <p>Para o que não cabe nas três frentes acima, avaliamos o caso e dizemos com clareza se podemos atender.</p>
-            <button class="svc-add js-only" type="button" data-pedido data-svc="outros">Incluir no pedido</button>
+        <article class="svc row gy-5 py-9 border-top" data-svc="outros" style="--tag: var(--p-br)">
+          <div class="col-12 lg:col-2"><span class="svc-tag eyebrow d-inline-block border-start border-5 ps-3 font-monospace fs-xs text-uppercase">Outros</span></div>
+          <div class="col-12 md:col-6 lg:col-5 vstack gap-3 align-items-start">
+            <h3 class="fs-xl mb-0">Outros serviços técnicos</h3>
+            <p class="svc-desc medida fg-3 mb-0">Para o que não cabe nas três frentes acima, avaliamos o caso e dizemos com clareza se podemos atender.</p>
+            <button class="btn btn-link px-0 js-only" type="button" data-pedido data-svc="outros">Incluir no pedido</button>
           </div>
-          <ul class="svc-items">
-            <li>Suporte técnico presencial e remoto</li>
-            <li>Contrato de manutenção mensal</li>
-            <li>Visita técnica e diagnóstico</li>
-            <li>Demandas técnicas sob consulta</li>
-          </ul>
+          <div class="col-12 md:col-6 lg:col-5">
+            <ul class="svc-items vstack gap-3 ps-6 mb-0">
+              <li>Suporte técnico presencial e remoto</li>
+              <li>Contrato de manutenção mensal</li>
+              <li>Visita técnica e diagnóstico</li>
+              <li>Demandas técnicas sob consulta</li>
+            </ul>
+          </div>
         </article>
       </div>
     </div>
   </section>
 
-  <section class="sec" id="processo">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="eyebrow">Como trabalhamos</p>
-        <h2>Do primeiro contato à entrega</h2>
-      </div>
-      <ol class="steps">
-        <li><span class="n">01</span><h3>Diagnóstico</h3><p>Conversamos e, quando preciso, visitamos o local para entender o que existe e o que precisa mudar.</p></li>
-        <li><span class="n">02</span><h3>Proposta</h3><p>Você recebe o escopo e o valor por escrito antes de qualquer serviço começar.</p></li>
-        <li><span class="n">03</span><h3>Execução</h3><p>Instalação ou manutenção com materiais adequados e pontos identificados.</p></li>
-        <li><span class="n">04</span><h3>Entrega e suporte</h3><p>Testamos tudo com você, explicamos o que foi feito e seguimos disponíveis para ajustes.</p></li>
+  <section class="secao" id="processo">
+    <div class="container gx-9">
+      <header class="vstack gap-4 mb-11">
+        <p class="eyebrow font-monospace fs-xs text-uppercase fg-3 mb-0">Como trabalhamos</p>
+        <h2 class="fs-4xl text-balance mb-0">Do primeiro contato à entrega</h2>
+      </header>
+      <ol class="list-unstyled row row-cols-1 sm:row-cols-2 lg:row-cols-4 gx-7 gy-9 mb-0">
+        <li><div class="vstack gap-3 h-100 border-top border-3 border-primary pt-5"><span class="font-monospace fs-sm fg-primary">01</span><h3 class="fs-xl mb-0">Diagnóstico</h3><p class="fg-3 mb-0">Conversamos e, quando preciso, visitamos o local para entender o que existe e o que precisa mudar.</p></div></li>
+        <li><div class="vstack gap-3 h-100 border-top border-3 border-primary pt-5"><span class="font-monospace fs-sm fg-primary">02</span><h3 class="fs-xl mb-0">Proposta</h3><p class="fg-3 mb-0">Você recebe o escopo e o valor por escrito antes de qualquer serviço começar.</p></div></li>
+        <li><div class="vstack gap-3 h-100 border-top border-3 border-primary pt-5"><span class="font-monospace fs-sm fg-primary">03</span><h3 class="fs-xl mb-0">Execução</h3><p class="fg-3 mb-0">Instalação ou manutenção com materiais adequados e pontos identificados.</p></div></li>
+        <li><div class="vstack gap-3 h-100 border-top border-3 border-primary pt-5"><span class="font-monospace fs-sm fg-primary">04</span><h3 class="fs-xl mb-0">Entrega e suporte</h3><p class="fg-3 mb-0">Testamos tudo com você, explicamos o que foi feito e seguimos disponíveis para ajustes.</p></div></li>
       </ol>
     </div>
   </section>
 
-  <section class="sec alt" id="sobre">
-    <div class="wrap about">
-      <div class="txt">
-        <p class="eyebrow">Sobre a InfraTech</p>
-        <h2>Uma equipe para toda a parte técnica</h2>
-        <p>Rede, computadores e câmeras costumam ser contratados separadamente, e quando algo falha cada prestador aponta para o outro. Na InfraTech, a mesma equipe projeta, instala e mantém os três, e responde pelo conjunto.</p>
-        <p>Atendemos empresas, comércios, condomínios e residências.</p>
+  <section class="secao bg-1 border-y" id="sobre">
+    <div class="container gx-9">
+      <div class="row gx-12 gy-9">
+        <div class="col-12 lg:col-6 vstack gap-5">
+          <p class="eyebrow font-monospace fs-xs text-uppercase fg-3 mb-0">Sobre a InfraTech</p>
+          <h2 class="fs-4xl text-balance mb-0">Uma equipe para toda a parte técnica</h2>
+          <p class="medida fg-3 mb-0">Rede, computadores e câmeras costumam ser contratados separadamente, e quando algo falha cada prestador aponta para o outro. Na InfraTech, a mesma equipe projeta, instala e mantém os três, e responde pelo conjunto.</p>
+          <p class="medida fg-3 mb-0">Atendemos empresas, comércios, condomínios e residências.</p>
+        </div>
+        <div class="col-12 lg:col-6">
+          <ul class="list-group list-group-flush border-y">
+            <li class="list-group-item bg-transparent px-0 py-5"><strong class="d-block fw-semibold">Um contato para tudo</strong><span class="fg-3">Rede, computador e câmera resolvidos na mesma conversa.</span></li>
+            <li class="list-group-item bg-transparent px-0 py-5"><strong class="d-block fw-semibold">Orçamento por escrito</strong><span class="fg-3">Escopo e valor combinados antes de começar.</span></li>
+            <li class="list-group-item bg-transparent px-0 py-5"><strong class="d-block fw-semibold">Instalação identificada</strong><span class="fg-3">Cabos, pontos e equipamentos etiquetados para facilitar o futuro.</span></li>
+            <li class="list-group-item bg-transparent px-0 py-5"><strong class="d-block fw-semibold">Suporte depois da entrega</strong><span class="fg-3">Ajustes e dúvidas continuam com a mesma equipe.</span></li>
+          </ul>
+        </div>
       </div>
-      <ul class="commit">
-        <li><strong>Um contato para tudo</strong><span>Rede, computador e câmera resolvidos na mesma conversa.</span></li>
-        <li><strong>Orçamento por escrito</strong><span>Escopo e valor combinados antes de começar.</span></li>
-        <li><strong>Instalação identificada</strong><span>Cabos, pontos e equipamentos etiquetados para facilitar o futuro.</span></li>
-        <li><strong>Suporte depois da entrega</strong><span>Ajustes e dúvidas continuam com a mesma equipe.</span></li>
+    </div>
+  </section>
+
+  <section class="secao" id="equipe">
+    <div class="container gx-9">
+      <header class="vstack gap-4 mb-11">
+        <p class="eyebrow font-monospace fs-xs text-uppercase fg-3 mb-0">Equipe</p>
+        <h2 class="fs-4xl text-balance mb-0">Quem cuida do seu projeto</h2>
+      </header>
+      <ul class="list-unstyled row row-cols-1 sm:row-cols-2 lg:row-cols-4 g-5 mb-0">
+        <li><div class="card card-body hstack gap-4 h-100"><span class="avatar avatar-lg avatar-subtle theme-primary flex-shrink-0" aria-hidden="true">DM</span><div class="min-w-0"><h3 class="fs-lg mb-0">Davi Moraes</h3><p class="fs-sm fg-3 mb-0">Gerente de TI</p></div></div></li>
+        <li><div class="card card-body hstack gap-4 h-100"><span class="avatar avatar-lg avatar-subtle theme-primary flex-shrink-0" aria-hidden="true">AL</span><div class="min-w-0"><h3 class="fs-lg mb-0">Alexandre Luiz</h3><p class="fs-sm fg-3 mb-0">Gerente Administrativo</p></div></div></li>
+        <li><div class="card card-body hstack gap-4 h-100"><span class="avatar avatar-lg avatar-subtle theme-primary flex-shrink-0" aria-hidden="true">AJ</span><div class="min-w-0"><h3 class="fs-lg mb-0">Ana Júlia</h3><p class="fs-sm fg-3 mb-0">Gerente de Materiais</p></div></div></li>
+        <li><div class="card card-body hstack gap-4 h-100"><span class="avatar avatar-lg avatar-subtle theme-primary flex-shrink-0" aria-hidden="true">CA</span><div class="min-w-0"><h3 class="fs-lg mb-0">Caio Antunes</h3><p class="fs-sm fg-3 mb-0">Gerente de IA</p></div></div></li>
+        <li><div class="card card-body hstack gap-4 h-100"><span class="avatar avatar-lg avatar-subtle theme-primary flex-shrink-0" aria-hidden="true">ME</span><div class="min-w-0"><h3 class="fs-lg mb-0">Maria Eduarda</h3><p class="fs-sm fg-3 mb-0">Comunicação</p></div></div></li>
+        <li><div class="card card-body hstack gap-4 h-100"><span class="avatar avatar-lg avatar-subtle theme-primary flex-shrink-0" aria-hidden="true">JA</span><div class="min-w-0"><h3 class="fs-lg mb-0">João Azevedo</h3><p class="fs-sm fg-3 mb-0">Líder</p></div></div></li>
+        <li><div class="card card-body hstack gap-4 h-100"><span class="avatar avatar-lg avatar-subtle theme-primary flex-shrink-0" aria-hidden="true">MB</span><div class="min-w-0"><h3 class="fs-lg mb-0">Matheus Belthodo</h3><p class="fs-sm fg-3 mb-0">Gerente de Projetos</p></div></div></li>
       </ul>
     </div>
   </section>
 
-  <section class="sec" id="equipe">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="eyebrow">Equipe</p>
-        <h2>Quem cuida do seu projeto</h2>
+  <section class="secao bg-1 fg-body" id="contato" data-bs-theme="dark">
+    <div class="container gx-9">
+      <div class="row gx-12 gy-9">
+        <div class="col-12 lg:col-6">
+          <p class="eyebrow font-monospace fs-xs text-uppercase fg-3 mb-0">Contato</p>
+          <h2 class="fs-4xl text-balance mt-4 mb-0">Peça seu orçamento</h2>
+          <p class="medida fs-lg fg-3 mt-5 mb-0">Conte o que você precisa. Respondemos com os próximos passos e, se for o caso, agendamos uma visita técnica.</p>
+          <button class="btn btn-lg btn-solid theme-primary mt-8 js-only" type="button" data-pedido>Montar meu pedido</button>
+        </div>
+        <div class="col-12 lg:col-6">
+          <dl class="list-group list-group-flush border-y mb-0">
+            <div class="list-group-item bg-transparent px-0 py-5"><dt class="eyebrow font-monospace fs-xs text-uppercase fg-3 fw-normal">WhatsApp</dt><dd class="fs-lg text-break mb-0">(00) 00000-0000</dd></div>
+            <div class="list-group-item bg-transparent px-0 py-5"><dt class="eyebrow font-monospace fs-xs text-uppercase fg-3 fw-normal">E-mail</dt><dd class="fs-lg text-break mb-0">contato@seudominio.com.br</dd></div>
+            <div class="list-group-item bg-transparent px-0 py-5"><dt class="eyebrow font-monospace fs-xs text-uppercase fg-3 fw-normal">Atendimento</dt><dd class="fs-lg text-break mb-0">Cidade e região atendidas</dd></div>
+          </dl>
+        </div>
       </div>
-      <!-- Funções a definir: trocar "Função a definir" pela área de cada um -->
-      <ul class="team">
-        <li class="member" style="--pc: var(--p-bl)"><span class="av" aria-hidden="true">DM</span><div><h3>Davi Moraes</h3><p class="role">Gerente de TI</p></div></li>
-        <li class="member" style="--pc: var(--p-gr)"><span class="av" aria-hidden="true">AL</span><div><h3>Alexandre Luiz</h3><p class="role">Gerente Administrativo</p></div></li>
-        <li class="member" style="--pc: var(--p-or)"><span class="av" aria-hidden="true">AJ</span><div><h3>Ana Júlia</h3><p class="role">Gerente de Materiais</p></div></li>
-        <li class="member" style="--pc: var(--p-br)"><span class="av" aria-hidden="true">CA</span><div><h3>Caio Antunes</h3><p class="role">Gerente de IA</p></div></li>
-        <li class="member" style="--pc: var(--p-bl)"><span class="av" aria-hidden="true">ME</span><div><h3>Maria Eduarda</h3><p class="role">Comunicação</p></div></li>
-        <li class="member" style="--pc: var(--p-gr)"><span class="av" aria-hidden="true">JA</span><div><h3>João Azevedo</h3><p class="role">Líder</p></div></li>
-        <li class="member" style="--pc: var(--p-or)"><span class="av" aria-hidden="true">MB</span><div><h3>Matheus Belthodo</h3><p class="role">Gerente de Projetos</p></div></li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="contact pad-sec sec" id="contato">
-    <div class="wrap">
-      <div>
-        <p class="eyebrow" style="color: var(--band-muted)">Contato</p>
-        <h2 style="margin-top: 12px">Peça seu orçamento</h2>
-        <p class="lead">Conte o que você precisa. Respondemos com os próximos passos e, se for o caso, agendamos uma visita técnica.</p>
-        <button class="btn primary js-only" type="button" data-pedido>Montar meu pedido</button>
-      </div>
-      <dl>
-        <div class="row"><dt>WhatsApp</dt><dd>(00) 00000-0000</dd></div>
-        <div class="row"><dt>E-mail</dt><dd>contato@seudominio.com.br</dd></div>
-        <div class="row"><dt>Atendimento</dt><dd>Cidade e região atendidas</dd></div>
-      </dl>
     </div>
   </section>
 </main>
 
-<footer class="ftr">
-  <div class="wrap">
+<footer class="bg-1 border-top" data-bs-theme="dark">
+  <div class="container gx-9 d-flex flex-wrap justify-content-between gap-3 py-7 fs-sm fg-3">
     <span>© 2026 InfraTech. Todos os direitos reservados.</span>
     <span>Redes · Suporte de TI · CFTV · Infraestrutura</span>
   </div>
@@ -750,7 +559,7 @@ const SERVICOS = {};
 $$(".svc[data-svc]").forEach((art) => {
   SERVICOS[art.dataset.svc] = {
     nome: $("h3", art).textContent,
-    desc: $(".svc-main p", art).textContent,
+    desc: $(".svc-desc", art).textContent,
     itens: $$(".svc-items li", art).map((li) => li.textContent),
     cor: art.style.getPropertyValue("--tag"),
   };
@@ -762,25 +571,27 @@ function marcarTema(tema) {
 }
 function definirTema(tema) {
   const raiz = document.documentElement;
-  if (tema === "auto") {
-    raiz.removeAttribute("data-theme");
-    raiz.removeAttribute("data-bs-theme");
-  } else {
-    raiz.setAttribute("data-theme", tema);
-    raiz.setAttribute("data-bs-theme", tema);
-  }
+  if (tema === "auto") raiz.removeAttribute("data-bs-theme");
+  else raiz.setAttribute("data-bs-theme", tema);
   try { localStorage.setItem("infratech-tema", tema); } catch (e) {}
   marcarTema(tema);
 }
-marcarTema(document.documentElement.getAttribute("data-theme") || "auto");
+marcarTema(document.documentElement.getAttribute("data-bs-theme") || "auto");
 $("#menu-tema").addEventListener("click", (ev) => {
   const b = ev.target.closest("[data-tema]");
   if (b) definirTema(b.dataset.tema);
 });
 
 /* ---------- Navegação ---------- */
+const menuMovel = $("#menu-movel");
+/* No celular o menu é uma gaveta; no desktop a navbar a mostra aberta na barra, e aí não há o que fechar */
+function fecharMenu(depois) {
+  if (!menuMovel.open) { if (depois) depois(); return; }
+  if (depois) menuMovel.addEventListener("hidden.bs.drawer", depois, { once: true });
+  Drawer.getOrCreateInstance(menuMovel).hide();
+}
 new ScrollSpy(document.body, { target: "#nav-principal", topMargin: "96px" });
-$$("#menu-movel a.l").forEach((a) => a.addEventListener("click", () => Drawer.getOrCreateInstance($("#menu-movel")).hide()));
+$$("#nav-principal .nav-link").forEach((a) => a.addEventListener("click", () => fecharMenu()));
 
 /* ---------- Gaveta de serviço ---------- */
 const gaveta = $("#svc-drawer");
@@ -869,11 +680,10 @@ function dataPorExtenso(valor) {
   return new Date(a, m - 1, d).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
 }
 function sincronizarServicos() {
-  $$(".svc-chip", dlgPedido).forEach((c) => {
-    const on = pedido.servicos.has(c.dataset.svc);
-    c.classList.toggle("active", on);
-    c.setAttribute("aria-pressed", String(on));
-    $(".led", c).classList.toggle("on", on);
+  $$("#chips-svc input", dlgPedido).forEach((caixa) => {
+    const on = pedido.servicos.has(caixa.dataset.svc);
+    caixa.checked = on;
+    $(".led", caixa.parentElement).classList.toggle("on", on);
   });
   $$("[data-led]", dlgPedido).forEach((l) => l.classList.toggle("on", pedido.servicos.has(l.dataset.led)));
   $$("[data-so]", dlgPedido).forEach((f) => { f.hidden = !pedido.servicos.has(f.dataset.so); });
@@ -904,7 +714,7 @@ function irPara(n) {
     p.classList.toggle("active", i <= n);
     if (i === n) p.setAttribute("aria-current", "step"); else p.removeAttribute("aria-current");
   });
-  $("#pedido-voltar").style.visibility = n === 0 ? "hidden" : "visible";
+  $("#pedido-voltar").classList.toggle("invisible", n === 0);
   $("#pedido-seguir").hidden = n === etapas.length - 1;
   if (n === 2 && !calendario) {
     const amanha = new Date();
@@ -933,19 +743,13 @@ function abrirPedido({ svc, sintoma } = {}) {
 }
 $$("[data-pedido]").forEach((b) => b.addEventListener("click", (ev) => {
   ev.preventDefault(); // sem o Bootstrap este código nem roda, e o link segue para a seção de contato
-  const noMenu = b.closest("#menu-movel");
-  if (noMenu) {
-    noMenu.addEventListener("hidden.bs.drawer", () => abrirPedido(), { once: true });
-    Drawer.getOrCreateInstance(noMenu).hide();
-  } else {
-    abrirPedido({ svc: b.dataset.svc });
-  }
+  if (b.closest("#menu-movel")) fecharMenu(() => abrirPedido());
+  else abrirPedido({ svc: b.dataset.svc });
 }));
-$("#chips-svc").addEventListener("click", (ev) => {
-  const c = ev.target.closest(".svc-chip");
-  if (!c) return;
-  const id = c.dataset.svc;
-  if (pedido.servicos.has(id)) pedido.servicos.delete(id); else pedido.servicos.add(id);
+$("#chips-svc").addEventListener("change", (ev) => {
+  const caixa = ev.target.closest("input[data-svc]");
+  if (!caixa) return;
+  if (caixa.checked) pedido.servicos.add(caixa.dataset.svc); else pedido.servicos.delete(caixa.dataset.svc);
   sincronizarServicos();
 });
 $("#pedido-seguir").addEventListener("click", () => {
@@ -972,4 +776,5 @@ $("#enviar-copia").addEventListener("click", async () => {
 });
 </script>
 
-</body></html>
+</body>
+</html>
